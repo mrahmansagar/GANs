@@ -1,2 +1,2 @@
 # GANs
-Implementation of various Generative Adversarial Networks and related utility functions. 
+Implementation of various Generative Adversarial Networks (GANs) and related utility functions. 
