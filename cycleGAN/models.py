@@ -20,13 +20,25 @@ from keras.layers import Input, Conv2D, Conv2DTranspose, LeakyReLU, Activation, 
 from keras.optimizers import Adam 
 from keras.initializers import RandomNormal
 
-
 from .. import utils
 
 
 # building the discriminator model 
 def build_discriminator(input_shape, loss='mse', opt=Adam, lr=0.0002, beta1=0.5, loss_weights=[0.5]):
+    """
+    Build and compile a discriminator model for a Generative Adversarial Network (GAN).
     
+    Args:
+        input_shape (tuple): The shape of the input image data (height, width, channels).
+        loss (str, optional): The loss function to be used for training. Default is 'mse' (Mean Squared Error).
+        opt (Optimizer, optional): The optimizer class to use for compiling the model. Default is Adam.
+        lr (float, optional): Learning rate for the optimizer. Default is 0.0002.
+        beta1 (float, optional): Exponential decay rate for the first moment estimates in Adam optimizer. Default is 0.5.
+        loss_weights (list, optional): List of loss weights. Default is [0.5].
+        
+    Returns:
+        keras.models.Model: Compiled discriminator model.
+    """
     # initialization of weights
     init_weights = RandomNormal(stddev=0.02)
     
@@ -59,6 +71,138 @@ def build_discriminator(input_shape, loss='mse', opt=Adam, lr=0.0002, beta1=0.5,
     dis_model.compile(optimizer=opt(learning_rate=lr, beta_1=beta1), loss=loss, loss_weights=loss_weights)
     
     return dis_model
+
+
+# defining a resnet block that will be used in the generator model according to 
+# the original paper
+
+def resnet_conv_block(filters, input_layer):
+    """
+    Create a residual block using convolutional layers for a ResNet-like architecture.
+    
+    Args:
+        filters (int): Number of filters in the convolutional layers.
+        input_layer (keras.layers.Layer): Input layer to the block.
+        
+    Returns:
+        keras.layers.Layer: Output layer of the residual block.
+    """
+    # initialization of weights
+    init_weights = RandomNormal(stddev=0.02)
+    
+    # First convolutional layer
+    res = Conv2D(filters=filters, kernel_size=(3,3), padding='same', kernel_initializer=init_weights)(input_layer)
+    res = utils.InstanceNormalization(axis=-1)(res)
+    res = Activation('relu')(res)
+    
+    # Second convolutional layer
+    res = Conv2D(filters=filters, kernel_size=(3,3), padding='same', kernel_initializer=init_weights)(res)
+    res = utils.InstanceNormalization(axis=-1)(res)
+    
+    # Concatenate with the input layer
+    res = Concatenate()([res, input_layer])
+    
+    return res
+
+# building generator model 
+def build_generator(input_shape, sizeof_resnet_block=9):
+    """
+    Build and compile a generator model for an image-to-image translation task, using a U-Net architecture with ResNet blocks.
+
+    Args:
+        input_shape (tuple): The shape of the input image data (height, width, channels).
+        sizeof_resnet_block (int, optional): Number of ResNet blocks to include. Default is 9.
+
+    Returns:
+        keras.models.Model: Generator model.
+    """
+    # initialization of weights
+    init_weights = RandomNormal(stddev=0.02)
+    
+    input_image = Input(shape=input_shape)
+    
+    # encoder part of the UNet
+    encode = Conv2D(filters=64, kernel_size=(7,7), padding='same', kernel_initializer=init_weights)(input_image)
+    encode = utils.InstanceNormalization(axis=-1)(encode)
+    encode = Activation('relu')(encode)
+    
+    encode = Conv2D(filters=128, kernel_size=(3,3), strides=(2,2), padding='same', kernel_initializer=init_weights)(encode)
+    encode = utils.InstanceNormalization(axis=-1)(encode)
+    encode = Activation('relu')(encode)
+    
+    encode = Conv2D(filters=256, kernel_size=(3,3), strides=(2,2), padding='same', kernel_initializer=init_weights)(encode)
+    encode = utils.InstanceNormalization(axis=-1)(encode)
+    encode = Activation('relu')(encode)
+    
+    # resnet blocks
+    for i in range(sizeof_resnet_block):
+        encode = resnet_conv_block(filters=256, input_layer=encode)
+        
+    # decoder part of the Unet/autoencoder
+    decode = Conv2DTranspose(filters=128, kernel_size=(3,3), strides=(2,2), padding='same', kernel_initializer=init_weights)(encode)
+    decode = utils.InstanceNormalization(axis=-1)(decode)
+    decode = Activation('relu')(decode)
+    
+    decode = Conv2DTranspose(filters=64, kernel_size=(3,3), strides=(2,2), padding='same', kernel_initializer=init_weights)(decode)
+    decode = utils.InstanceNormalization(axis=-1)(decode)
+    decode = Activation('relu')(decode)
+    
+    decode = Conv2DTranspose(filters=3, kernel_size=(3,3), padding='same', kernel_initializer=init_weights)(decode)
+    decode = utils.InstanceNormalization(axis=-1)(decode)
+    output_image = Activation('tanh')(decode)
+    
+    gen_model = Model(input_image, output_image)
+    
+    return gen_model
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     
     
     
