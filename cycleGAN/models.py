@@ -156,7 +156,39 @@ def build_generator(input_shape, sizeof_resnet_block=9):
     return gen_model
     
     
+   
+# building combined model using 2opasdjfopusiopdfl
+def build_cycleGAN(gen1, dis, gen2, input_shape, loss=['mse', 'mae', 'mae', 'mae'], opt=Adam, lr=0.0002, beta1=0.5, loss_weights=[1, 5, 10, 10]):
     
+    #set the parameters to be trainable for one generator model at a time. 
+    # others are kept constant. discriminator model is updated while training 
+    gen1.trainable = True
+    #
+    dis.trainable = False
+    gen2.trainable = False 
+    
+    #loss-1 adversarial loss
+    input_gen1 = Input(shape=input_shape)
+    output_gen1 = gen1(input_gen1)
+    output_dis = dis(output_gen1)
+    
+    #loss-2: identity loss
+    input_identity = Input(shape=input_shape)
+    output_identity = gen1(input_identity)
+    
+    #loss-3: cycle loss :forward
+    output_forward = gen2(output_gen1)
+    
+    #loss-4: cycle loss :backward
+    output_gen2 = gen2(input_identity)
+    output_backward = gen1(output_gen2)
+    
+    # model with input and output connected
+    cycleGAN = Model([input_gen1, input_identity], [output_dis, output_identity, output_forward, output_backward])
+    
+    cycleGAN.compile(optimizer=opt(learning_rate=lr, beta_1=beta1), loss=loss, loss_weights=loss_weights)
+    
+    return cycleGAN
     
     
     
