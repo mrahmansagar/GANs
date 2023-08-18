@@ -21,7 +21,7 @@ from keras.optimizers import Adam
 from keras.initializers import RandomNormal
 
 from .. import utils
-import model_utils as mu
+from . import model_utils as mu
 
 # building the discriminator model 
 def build_discriminator(input_shape, opt=Adam, lr=0.0002, beta1=0.5, 
@@ -167,7 +167,7 @@ def build_generator(input_shape, sizeof_resnet_block=9):
     decode = utils.InstanceNormalization(axis=-1)(decode)
     decode = Activation('relu')(decode)
     
-    decode = Conv2DTranspose(filters=3, kernel_size=(3,3), padding='same', 
+    decode = Conv2DTranspose(filters=input_shape[-1], kernel_size=(3,3), padding='same', 
                              kernel_initializer=init_weights)(decode)
     decode = utils.InstanceNormalization(axis=-1)(decode)
     output_image = Activation('tanh')(decode)
