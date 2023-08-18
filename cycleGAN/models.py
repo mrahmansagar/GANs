@@ -238,7 +238,27 @@ def build_cycleGAN(gen1, dis, gen2, input_shape, opt=Adam, lr=0.0002, beta1=0.5,
 
 
 def train_cycleGAN(disA, disB, genA2B, genB2A, cganA2B, cganB2A, dataA, dataB, 
-                   batch_size=1, epochs=1):
+                   batch_size=1, epochs=10, summary_interval=10):
+    """
+    Train a CycleGAN model for image-to-image translation.
+
+    Args:
+        disA (keras.models.Model): Discriminator model for domain A.
+        disB (keras.models.Model): Discriminator model for domain B.
+        genA2B (keras.models.Model): Generator model from domain A to B.
+        genB2A (keras.models.Model): Generator model from domain B to A.
+        cganA2B (keras.models.Model): CycleGAN model for domain A to B translation.
+        cganB2A (keras.models.Model): CycleGAN model for domain B to A translation.
+        dataA (numpy.ndarray): Training data for domain A.
+        dataB (numpy.ndarray): Training data for domain B.
+        batch_size (int, optional): Batch size for training. Default is 1.
+        epochs (int, optional): Number of training epochs. Default is 10.
+        summary_interval (int, optional): Interval (in terms of epochs) for saving 
+        output plots and models. Default is 10.
+
+    Returns:
+        None
+    """
     
     # output patch shape of the patchGAN discriminator
     patch_size = disA.output_shape[1]
@@ -279,6 +299,18 @@ def train_cycleGAN(disA, disB, genA2B, genB2A, cganA2B, cganB2A, dataA, dataB,
         # train the discriminator model for A
         disA_loss1 = disA.train_on_batch(X_realA, y_realA)
         disA_loss2 = disA.train_on_batch(X_fakeA, y_fakeA)
+        
+        # tracking the model train loss
+        print(f'Epoch> {int(step/batch_per_epoch) +1}/{epochs} > Ite> {step+1}'
+              f'disA[{disA_loss1:.3f}, {disA_loss2:.3f}]'
+              f'disB[{disB_loss1:.3f}, {disB_loss2:.3f}]'
+              f'gen[{genA2B_loss:.3f}, {genB2A_loss:.3f}]')
+        
+        #save the model and generated output after defined intervals
+        if (step+1) % (batch_per_epoch*summary_interval) == 0:
+            mu.evaluate_model_performance(genA2B, dataA, step, 'GenA2B')
+            mu.evaluate_model_performance(genB2A, dataB, step, 'GenB2A')
+            
         
         
         
