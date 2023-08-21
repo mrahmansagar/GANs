@@ -46,7 +46,31 @@ def load_images_in_shape(img_dir, **kwargs):
     
     return img_data_in_shape
         
+# Data scaling
+
+def scale_data(data, min_pix_val=0, max_pix_val=255, final_activation='tanh'):
+    """
+    Scale input data to a specific range according to final activation function.
+
+    Args:
+        data (numpy.ndarray): Input data to be scaled.
+        min_pix_val (int, optional): Minimum pixel value of the desired range. Default is 0.
+        max_pix_val (int, optional): Maximum pixel value of the desired range. Default is 255.
+        final_activation (str, optional): Activation function for the final scaled data. Default is 'tanh'.
+
+    Returns:
+        numpy.ndarray: Scaled data.
+    """
+    try:
+        if final_activation == 'tanh':
+            scale_coef = (max_pix_val - min_pix_val)/2.0
+
+        scaled_data = (data - scale_coef) / scale_coef
+
+        return scaled_data
     
+    except:
+        print('Error: Activation function type is not defined.')   
 
 """
 This is a helper(Normalization) fuction that is needed for Cycle-GANs. This 
