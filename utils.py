@@ -5,13 +5,48 @@ Created on Tue Aug 15 16:15:27 2023
 @author: mrahm
 """
 
+import os
+from tkinter import Tcl
+from tqdm import tqdm
+
+import numpy as np
+
+
+from keras.utils import load_img, img_to_array
 from keras.layers import Layer, InputSpec
 from keras import initializers, regularizers, constraints
 from keras import backend as K
 
 
+# load images/data in shape for training data generation 
+def load_images_in_shape(img_dir, **kwargs):
+    """
+    Load images from a directory and convert them to a NumPy array with specified shape.
 
+    Args:
+        img_dir (str): Path to the directory containing the images.
+        **kwargs: Additional keyword arguments to be passed to `load_img()` function.
 
+    Returns:
+        numpy.ndarray: Array containing the loaded images in the specified shape.
+    """
+    img_data_in_shape = []
+    
+    list_of_images = Tcl().call('lsort', '-dict', os.listdir(img_dir))
+    print('Found', len(list_of_images), 'files in the directory')
+    
+    for im in tqdm(list_of_images):
+        im = load_img(os.path.join(img_dir, im), **kwargs)
+        imarray = img_to_array(im)
+        img_data_in_shape.append(imarray)
+        
+    img_data_in_shape = np.asarray(img_data_in_shape)
+        
+    print('Loaded', img_data_in_shape.shape, 'images')
+    
+    return img_data_in_shape
+        
+    
 
 """
 This is a helper(Normalization) fuction that is needed for Cycle-GANs. This 
