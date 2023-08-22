@@ -71,7 +71,7 @@ def update_generated_image_pool(maintained_pool, images, max_pool_size=50):
         
             
     
-def evaluate_model_performance(gen_model, data, iteration, name, sample_size=3):
+def evaluate_model_performance(gen_model, data, iteration, name, sample_size=5):
     idx = np.random.randint(0, len(data), sample_size)
     X = data[idx]
     X_gen = gen_model.predict(X)
@@ -82,6 +82,9 @@ def evaluate_model_performance(gen_model, data, iteration, name, sample_size=3):
     
     
     # ploting the images 
+    plt.figure(figsize=(sample_size*2, sample_size))
+    plt.tight_layout()
+    plt.subplots_adjust(wspace=0, hspace=0)
     for i in range(sample_size):
         plt.subplot(2, sample_size, i+1)
         plt.axis('off')
@@ -89,10 +92,8 @@ def evaluate_model_performance(gen_model, data, iteration, name, sample_size=3):
             plt.imshow(X[i], cmap='gray')
         else:
             plt.imshow(X[i])
-    
-    # ploting the images 
-    for i in range(sample_size):
-        plt.subplot(2, sample_size, i+1)
+        
+        plt.subplot(2, sample_size, sample_size+1+i)
         plt.axis('off')
         if X.shape[3] == 1:
             plt.imshow(X_gen[i], cmap='gray')

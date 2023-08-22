@@ -301,9 +301,9 @@ def train_cycleGAN(disA, disB, genA2B, genB2A, cganA2B, cganB2A, dataA, dataB,
         disA_loss2 = disA.train_on_batch(X_fakeA, y_fakeA)
         
         # tracking the model train loss
-        print(f'Epoch> {int(step/batch_per_epoch) +1}/{epochs} > Ite> {step+1}'
-              f'disA[{disA_loss1:.3f}, {disA_loss2:.3f}]'
-              f'disB[{disB_loss1:.3f}, {disB_loss2:.3f}]'
+        print(f'Epoch> {int(step/batch_per_epoch) +1}/{epochs} > Ite> {step+1} '
+              f'disA[{disA_loss1:.3f}, {disA_loss2:.3f}] '
+              f'disB[{disB_loss1:.3f}, {disB_loss2:.3f}] '
               f'gen[{genA2B_loss:.3f}, {genB2A_loss:.3f}]')
         
         #save the model and generated output after defined intervals
