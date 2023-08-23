@@ -72,6 +72,21 @@ def update_generated_image_pool(maintained_pool, images, max_pool_size=50):
             
     
 def evaluate_model_performance(gen_model, data, iteration, name, sample_size=5):
+    """
+    Evaluate and visualize the performance of a generator model by generating and plotting images.
+
+    Args:
+        gen_model (keras.models.Model): The generator model to evaluate.
+        data (numpy.ndarray): Input data used for generating images.
+        iteration (int): The current iteration or step of training.
+        name (str): Name used for saving the output files.
+        sample_size (int, optional): Number of samples to evaluate and plot. 
+        Default is 5.
+
+    Returns:
+        None
+    """
+    
     idx = np.random.randint(0, len(data), sample_size)
     X = data[idx]
     X_gen = gen_model.predict(X)
