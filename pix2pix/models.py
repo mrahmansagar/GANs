@@ -23,6 +23,8 @@ from keras.layers import Activation, LeakyReLU
 from keras.layers import BatchNormalization, Dropout
 
 
+from . import model_utils as mu
+
 # building the discriminator model 
 def build_discriminator(input_shape, opt=Adam, lr=0.0002, beta1=0.5, 
                         loss='binary_crossentropy', loss_weights=[0.5]):
@@ -250,3 +252,84 @@ def build_pix2pix(generator, discriminator, input_shape, opt=Adam, lr=0.0002, be
     model.compile(loss=loss, optimizer=opt, loss_weights=loss_weights)
     
     return model
+
+
+
+def train_pix2pix(gen, dis, cgan, src_data, tar_data, batch_size=1, epochs=10, 
+                   summary_interval=10):
+    
+    # output patch shape of the patchGAN discriminator
+    patch_size = dis.output_shape[1]
+    
+    batch_per_epoch = int(len(src_data) / batch_size)
+    
+    train_iterations = batch_per_epoch * epochs
+    
+    for step in range(train_iterations):
+        idx = np.random.randint(0, src_data.shape[0], batch_size)
+        X_src = src_data[idx]
+        X_tar = tar_data[idx]
+        y_real = np.ones(shape=(batch_size, patch_size, patch_size, 1))        
+        
+        #train on real sample
+        d_loss_real = dis.train_on_batch([X_src, X_tar], y_real)
+        #train on fake sample
+        X_tar_fake, y_fake = mu.generate_fake_samples(gen, X_src, patch_size)
+        
+        d_loss_fake = dis.train_on_batch([X_src, X_tar_fake], y_fake)
+
+        # update the generator model 
+        g_loss, _, _ = cgan.train_on_batch(X_src, [y_real, X_tar])
+        
+        
+        # tracking the model train loss
+        print(f'Epoch> {int(step/batch_per_epoch) +1}/{epochs} > Ite> {step+1} '
+              f'dis loss real[{d_loss_real:.3f}] '
+              f'dis loss fake[{d_loss_fake:.3f}] '
+              f'gen loss[{g_loss:.3f}]')
+        
+        #save the model and generated output after defined intervals
+        if (step+1) % (batch_per_epoch*summary_interval) == 0:
+            mu.evaluate_model_performance(gen, src_data, step, 'Src2Tar')
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
