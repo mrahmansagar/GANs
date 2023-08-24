@@ -26,7 +26,7 @@ from keras.layers import BatchNormalization, Dropout
 from . import model_utils as mu
 
 # building the discriminator model 
-def build_discriminator(input_shape, opt=Adam, lr=0.0002, beta1=0.5, 
+def build_discriminator(input_shape, optimizer=Adam, lr=0.0002, beta1=0.5, 
                         loss='binary_crossentropy', loss_weights=[0.5]):
     """
     Build and compile a discriminator model for use in image-to-image translation
@@ -90,7 +90,7 @@ def build_discriminator(input_shape, opt=Adam, lr=0.0002, beta1=0.5,
     model = Model([src_input, tar_input], patch_out)
     
     # compile model
-    opt = Adam(learning_rate=lr, beta_1=beta1)
+    opt = optimizer(learning_rate=lr, beta_1=beta1)
     model.compile(loss=loss, optimizer=opt, loss_weights=loss_weights)
     return model
 
