@@ -158,3 +158,17 @@ cython_debug/
 #  and can be added to the global gitignore or merged into this file.  For a more nuclear
 #  option (not recommended) you can uncomment the following to ignore the entire idea folder.
 #.idea/
+
+
+
+# ignoring example generated files 
+examples/Src2Tar_after_11899.h5
+examples/Src2Tar_after_17849.h5
+examples/Src2Tar_after_23799.h5
+examples/Src2Tar_after_29749.h5
+examples/Src2Tar_after_5949.h5
+examples/Src2Tar_plot_after_11899.png
+examples/Src2Tar_plot_after_17849.png
+examples/Src2Tar_plot_after_23799.png
+examples/Src2Tar_plot_after_29749.png
+examples/Src2Tar_plot_after_5949.png
