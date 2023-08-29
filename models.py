@@ -20,6 +20,10 @@ from keras.layers import Dense, Conv2D, Conv2DTranspose, Flatten, Reshape
 from keras.layers import LeakyReLU, Dropout
 
 
+from . import utils
+
+
+
 # defining a function to build discriminator model
 def build_discriminator(input_shape, optimizer=Adam, lr=0.0002, beta1=0.5, 
                         loss='binary_crossentropy', metrics=['accuracy']):
@@ -140,45 +144,35 @@ def build_gan(generator, discriminator, optimizer=Adam, lr=0.0002, beta1=0.5,
     return model
 
 
-#todo:
-#def train_gan(generator, discriminator, gan, ):
+# trainig of gan model 
+def train_gan(generator, discriminator, gan, data, latent_dim, epochs=100, batch_size=128, 
+              summary_interval=10):
     
- 
+    batch_per_epoch = int(len(data) / batch_size)
+    
+    for epoch in range(epochs):
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+        for batch in range(batch_per_epoch):
+            idx = np.random.randint(0, len(data), batch_size)
+            X_real = data[idx]
+            #generating class lebels. 1 for real images 
+            y_real = np.ones(shape=(batch_size, 1))
+            
+            d_loss_real, _ = discriminator.train_on_batch(X_real, y_real)
+            X_fake, y_fake = utils.generate_fake_samples(generator, latent_dim, batch_size)
+            d_loss_fake, _ = discriminator.train_on_batch(X_fake, y_fake)
+            
+            X_gan = utils.generate_latent_points(latent_dim, batch_size)
+            y_gan = np.ones(shape=(batch_size, 1))
+            
+            g_loss = gan.train_on_batch(X_gan, y_gan)
+            # tracking the model train loss
+            print(f'Epoch> {epoch+1}/{epochs} > Ite> {batch+1} '
+                  f'dis loss real[{d_loss_real:.3f}] '
+                  f'dis loss fake[{d_loss_fake:.3f}] '
+                  f'gen loss[{g_loss:.3f}]')
+            
+        #save the model and generated output after defined intervals
+        if (epoch+1) % (summary_interval) == 0:
+            utils.evaluate_model_performance(generator, latent_dim, epoch, 'gen')
     

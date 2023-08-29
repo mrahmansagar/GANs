@@ -10,6 +10,7 @@ from tkinter import Tcl
 from tqdm import tqdm
 
 import numpy as np
+import matplotlib.pyplot as plt
 
 
 from keras.utils import load_img, img_to_array
@@ -47,7 +48,6 @@ def load_images_in_shape(img_dir, **kwargs):
     return img_data_in_shape
         
 # Data scaling
-
 def scale_data(data, min_pix_val=0, max_pix_val=255, final_activation='tanh'):
     """
     Scale input data to a specific range according to final activation function.
@@ -71,6 +71,89 @@ def scale_data(data, min_pix_val=0, max_pix_val=255, final_activation='tanh'):
     
     except:
         print('Error: Activation function type is not defined.')   
+
+
+# generate random noise (latent points)
+def generate_latent_points(latent_dim, batch_size):
+    """
+    Generate random noise (latent points) for use in a generative model.
+
+    Parameters:
+        latent_dim (int): The dimensionality of the latent space.
+        batch_size (int): The number of latent points to generate in a single batch.
+
+    Returns:
+        numpy.ndarray: A 2D array of shape (batch_size, latent_dim) containing
+                       random noise (latent points).
+    """
+    x = np.random.randn(latent_dim*batch_size)
+    x = x.reshape(batch_size, latent_dim)
+    return x
+
+
+def generate_fake_samples(generator, latent_dim, batch_size):
+    """
+    Generates fake samples using a generator model.
+
+    Args:
+        generator (tf.keras.Model): The generator model used to generate fake samples.
+        latent_dim (int): The dimension of the latent space.
+        batch_size (int): The number of fake samples to generate in a batch.
+
+    Returns:
+        tuple: A tuple containing generated fake samples (x_f) and corresponding labels (y_f).
+            - x_f (numpy.ndarray): An array of generated fake samples with shape (batch_size, sample_shape).
+            - y_f (numpy.ndarray): An array of corresponding labels with shape (batch_size, 1).
+    """
+    latent_input = generate_latent_points(latent_dim, batch_size)
+    x_f = generator.predict(latent_input)
+    y_f = np.zeros(shape=(batch_size, 1))
+    return x_f, y_f
+
+def evaluate_model_performance(gen_model, latent_dim, iteration, name='gen'):
+    """
+    Evaluate and save the performance of a GAN-generated model.
+
+    This function generates images using the provided generator model and evaluates 
+    its performance.
+    The generated images are saved in a 5x5 grid, and the trained generator 
+    model is saved to disk.
+
+    Parameters:
+        gen_model (tf.keras.Model): The generator model to generate images.
+        latent_dim (int): The dimension of the latent space for generating random points.
+        iteration (int): The current iteration/epoch of the model training.
+        name (str): A name or identifier for the generated images and model files.
+
+    Returns:
+        None
+    """
+    
+    # generate images
+    latent_points = generate_latent_points(latent_dim, 25)  #Latent dim and n_samples
+    # generate images
+    X = gen_model.predict(latent_points)
+    # scale from [-1,1] to [0,1]
+    X = (X + 1) / 2.0
+    
+    import numpy as np
+    X = (X*255).astype(np.uint8)
+    
+    plt.figure(figsize=(10,10))
+    for i in range(25):
+        plt.subplot(5, 5, 1 + i)
+        plt.axis('off')
+        plt.imshow(X[i, :, :, :])
+
+    
+    plt_name = f'{name}_plot_after_{iteration}.png'
+    plt.savefig(plt_name)
+    plt.close()
+    model_name = f'{name}_after_{iteration}.h5'
+    
+    gen_model.save(model_name)
+
+
 
 """
 This is a helper(Normalization) fuction that is needed for Cycle-GANs. This 
