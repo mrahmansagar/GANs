@@ -11,6 +11,8 @@ import os
 import numpy as np
 
 
+from sklearn.utils import shuffle
+
 # importing tensorflow and keras
 import tensorflow as tf
 
@@ -145,8 +147,30 @@ def build_gan(generator, discriminator, optimizer=Adam, lr=0.0002, beta1=0.5,
 
 
 # trainig of gan model 
+# Each batch is selected randomly from the entire dataset while training 
 def train_gan(generator, discriminator, gan, data, latent_dim, epochs=100, batch_size=128, 
               summary_interval=10):
+    """
+    Train a Generative Adversarial Network (GAN). 
+    Each batch is selected randomly from the entire dataset while training   
+
+    This function trains a GAN by alternating between training the discriminator
+    and the generator. It iterates through the specified number of epochs and
+    updates the models using the given data.
+
+    Args:
+        generator (tf.keras.Model): The generator model.
+        discriminator (tf.keras.Model): The discriminator model.
+        gan (tf.keras.Model): The combined GAN model.
+        data (numpy.ndarray): The training data.
+        latent_dim (int): The dimension of the generator's input noise.
+        epochs (int, optional): Number of training epochs. Default is 100.
+        batch_size (int, optional): Batch size for training. Default is 128.
+        summary_interval (int, optional): Interval for summarizing progress. Default is 10.
+
+    Returns:
+        None
+    """
     
     batch_per_epoch = int(len(data) / batch_size)
     
@@ -176,3 +200,60 @@ def train_gan(generator, discriminator, gan, data, latent_dim, epochs=100, batch
         if (epoch+1) % (summary_interval) == 0:
             utils.evaluate_model_performance(generator, latent_dim, epoch, 'gen')
     
+
+# trainig of gan model 
+# After each epoch dataset is shuffled and batch are extracted so that the
+# entire dataset is used for training
+def train_gan2(generator, discriminator, gan, data, latent_dim, epochs=100, batch_size=128, 
+              summary_interval=10):
+    """
+    Train a Generative Adversarial Network (GAN). 
+    After each epoch dataset is shuffled and batch are extracted so that the
+    entire dataset is used for training
+
+    This function trains a GAN by alternating between training the discriminator
+    and the generator. It iterates through the specified number of epochs and
+    updates the models using the given data.
+
+    Args:
+        generator (tf.keras.Model): The generator model.
+        discriminator (tf.keras.Model): The discriminator model.
+        gan (tf.keras.Model): The combined GAN model.
+        data (numpy.ndarray): The training data.
+        latent_dim (int): The dimension of the generator's input noise.
+        epochs (int, optional): Number of training epochs. Default is 100.
+        batch_size (int, optional): Batch size for training. Default is 128.
+        summary_interval (int, optional): Interval for summarizing progress. Default is 10.
+
+    Returns:
+        None
+    """
+    
+    batch_per_epoch = int(len(data) / batch_size)
+    
+    for epoch in range(epochs):
+        shuffled_data = shuffle(data)
+        for batch in range(batch_per_epoch):
+            idx = list(range(batch * batch_size, (batch + 1) * batch_size))
+            X_real = shuffled_data[idx]
+            #generating class lebels. 1 for real images 
+            y_real = np.ones(shape=(batch_size, 1))
+            
+            d_loss_real, _ = discriminator.train_on_batch(X_real, y_real)
+            X_fake, y_fake = utils.generate_fake_samples(generator, latent_dim, batch_size)
+            d_loss_fake, _ = discriminator.train_on_batch(X_fake, y_fake)
+            
+            X_gan = utils.generate_latent_points(latent_dim, batch_size)
+            y_gan = np.ones(shape=(batch_size, 1))
+            
+            g_loss = gan.train_on_batch(X_gan, y_gan)
+            # tracking the model train loss
+            print(f'Epoch> {epoch+1}/{epochs} > Ite> {batch+1} '
+                  f'dis loss real[{d_loss_real:.3f}] '
+                  f'dis loss fake[{d_loss_fake:.3f}] '
+                  f'gen loss[{g_loss:.3f}]')
+            
+        #save the model and generated output after defined intervals
+        if (epoch+1) % (summary_interval) == 0:
+            utils.evaluate_model_performance(generator, latent_dim, epoch, 'gen')
+
