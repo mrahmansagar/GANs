@@ -73,6 +73,23 @@ def scale_data(data, min_pix_val=0, max_pix_val=255, final_activation='tanh'):
         print('Error: Activation function type is not defined.')   
 
 
+#determine the number of conv block
+def calculate_conv_block(init_dim, final_dim):
+
+    found = False
+    count = 0
+    for i in range(int(final_dim/init_dim)):
+        init_dim = init_dim*2
+        count += 1
+        if init_dim == final_dim:
+            found = True
+            return count
+            break
+        
+    if found == False:
+        print('Error: cannot match final dimension. Check init_dim, final_dim to match the output shape. Otherwise manipulate stride, padding, or add layers, etc.')
+
+
 # generate random noise (latent points)
 def generate_latent_points(latent_dim, batch_size):
     """

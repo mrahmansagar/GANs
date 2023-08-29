@@ -77,7 +77,8 @@ def build_discriminator(input_shape, optimizer=Adam, lr=0.0002, beta1=0.5,
 
 
 
-def build_generator(latent_dim, n_channel=3):
+
+def build_generator(latent_dim, init_dim, final_dim, n_channel=3):
     
     """
     Build a generator model for generating images using a deep neural network.
@@ -90,26 +91,31 @@ def build_generator(latent_dim, n_channel=3):
     Returns:
         keras.models.Sequential: A Keras Sequential model representing the generator.
     """
+    num_conv_block = utils.calculate_conv_block(init_dim, final_dim)
     
-    model = Sequential()
-    # foundation for 4x4 image
-    n_nodes = 256 * 4 * 4
-    model.add(Dense(n_nodes, input_dim=latent_dim))
-    model.add(LeakyReLU(alpha=0.2))
-    model.add(Reshape((4, 4, 256)))
-    # upsample to 8x8
-    model.add(Conv2DTranspose(128, (4,4), strides=(2,2), padding='same'))
-    model.add(LeakyReLU(alpha=0.2))
-    # upsample to 16x16
-    model.add(Conv2DTranspose(128, (4,4), strides=(2,2), padding='same'))
-    model.add(LeakyReLU(alpha=0.2))
-    # upsample to 32x32
-    model.add(Conv2DTranspose(128, (4,4), strides=(2,2), padding='same'))
-    model.add(LeakyReLU(alpha=0.2))
-    # output layer
-    model.add(Conv2D(n_channel, (3,3), activation='tanh', padding='same'))
-    return model
-
+    if not num_conv_block == None: 
+        
+        
+        model = Sequential()
+        # foundation for 4x4 image
+        n_nodes = 256 * init_dim * init_dim
+        model.add(Dense(n_nodes, input_dim=latent_dim))
+        model.add(LeakyReLU(alpha=0.2))
+        model.add(Reshape((init_dim, init_dim, 256)))
+        
+        for i in range(num_conv_block):
+            # upsample to init_dim x 2
+            model.add(Conv2DTranspose(128, (4,4), strides=(2,2), padding='same'))
+            model.add(LeakyReLU(alpha=0.2))
+        
+        # output layer
+        model.add(Conv2D(n_channel, (3,3), activation='tanh', padding='same'))
+        
+        return model
+    else:
+        print('Modify the function')
+        
+        
 
 def build_gan(generator, discriminator, optimizer=Adam, lr=0.0002, beta1=0.5, 
                         loss='binary_crossentropy'):
