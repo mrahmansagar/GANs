@@ -257,6 +257,23 @@ def build_pix2pix(generator, discriminator, input_shape, opt=Adam, lr=0.0002, be
 
 def train_pix2pix(gen, dis, cgan, src_data, tar_data, batch_size=1, epochs=10, 
                    summary_interval=10, name='Src2Tar'):
+    """
+   Train a Pix2Pix model.
+
+   Args:
+       gen (keras.models.Model): The generator model.
+       dis (keras.models.Model): The discriminator model.
+       cgan (keras.models.Model): The conditional GAN model.
+       src_data (numpy.ndarray): The source dataset.
+       tar_data (numpy.ndarray): The target dataset.
+       batch_size (int, optional): The batch size for training (default is 1).
+       epochs (int, optional): The number of training epochs (default is 10).
+       summary_interval (int, optional): The interval for summarizing model performance (default is 10).
+       name (str, optional): The name of the model (default is 'Src2Tar'). Relative path supported.
+
+   Returns:
+       None
+   """
     
     # output patch shape of the patchGAN discriminator
     patch_size = dis.output_shape[1]

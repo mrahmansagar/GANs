@@ -154,8 +154,8 @@ def build_gan(generator, discriminator, optimizer=Adam, lr=0.0002, beta1=0.5,
 
 # trainig of gan model 
 # Each batch is selected randomly from the entire dataset while training 
-def train_gan(generator, discriminator, gan, data, latent_dim, epochs=100, batch_size=128, 
-              summary_interval=10):
+def train_gan(generator, discriminator, gan, data, latent_dim, batch_size=128, 
+              epochs=100, summary_interval=10, name='gen'):
     """
     Train a Generative Adversarial Network (GAN). 
     Each batch is selected randomly from the entire dataset while training   
@@ -173,6 +173,7 @@ def train_gan(generator, discriminator, gan, data, latent_dim, epochs=100, batch
         epochs (int, optional): Number of training epochs. Default is 100.
         batch_size (int, optional): Batch size for training. Default is 128.
         summary_interval (int, optional): Interval for summarizing progress. Default is 10.
+        name (str, optional): The name of the model (default is 'Src2Tar'). Relative path supported. 
 
     Returns:
         None
@@ -204,14 +205,14 @@ def train_gan(generator, discriminator, gan, data, latent_dim, epochs=100, batch
             
         #save the model and generated output after defined intervals
         if (epoch+1) % (summary_interval) == 0:
-            utils.evaluate_model_performance(generator, latent_dim, epoch, 'gen')
+            utils.evaluate_model_performance(generator, latent_dim, epoch, name=name)
     
 
 # trainig of gan model 
 # After each epoch dataset is shuffled and batch are extracted so that the
 # entire dataset is used for training
-def train_gan2(generator, discriminator, gan, data, latent_dim, epochs=100, batch_size=128, 
-              summary_interval=10):
+def train_gan2(generator, discriminator, gan, data, latent_dim, batch_size=128,
+               epochs=100, summary_interval=10, name='gen'):
     """
     Train a Generative Adversarial Network (GAN). 
     After each epoch dataset is shuffled and batch are extracted so that the
@@ -230,6 +231,7 @@ def train_gan2(generator, discriminator, gan, data, latent_dim, epochs=100, batc
         epochs (int, optional): Number of training epochs. Default is 100.
         batch_size (int, optional): Batch size for training. Default is 128.
         summary_interval (int, optional): Interval for summarizing progress. Default is 10.
+        name (str, optional): The name of the model (default is 'Src2Tar'). Relative path supported. 
 
     Returns:
         None
@@ -261,5 +263,5 @@ def train_gan2(generator, discriminator, gan, data, latent_dim, epochs=100, batc
             
         #save the model and generated output after defined intervals
         if (epoch+1) % (summary_interval) == 0:
-            utils.evaluate_model_performance(generator, latent_dim, epoch, 'gen')
+            utils.evaluate_model_performance(generator, latent_dim, epoch, name=name)
 

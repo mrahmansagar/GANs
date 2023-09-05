@@ -238,7 +238,7 @@ def build_cycleGAN(gen1, dis, gen2, input_shape, opt=Adam, lr=0.0002, beta1=0.5,
 
 
 def train_cycleGAN(disA, disB, genA2B, genB2A, cganA2B, cganB2A, dataA, dataB, 
-                   batch_size=1, epochs=10, summary_interval=10):
+                   batch_size=1, epochs=10, summary_interval=10, nameA2B='GenA2B', nameB2A='GenB2A'):
     """
     Train a CycleGAN model for image-to-image translation.
 
@@ -255,6 +255,10 @@ def train_cycleGAN(disA, disB, genA2B, genB2A, cganA2B, cganB2A, dataA, dataB,
         epochs (int, optional): Number of training epochs. Default is 10.
         summary_interval (int, optional): Interval (in terms of epochs) for saving 
         output plots and models. Default is 10.
+        nameA2B (str, optional): The name of the gen model A2B (default is 'GenA2B').
+        Relative path supported.
+        nameB2A (str, optional): The name of the gen model B2A (default is 'GenB2A'). 
+        Relative path supported.
 
     Returns:
         None
@@ -308,8 +312,8 @@ def train_cycleGAN(disA, disB, genA2B, genB2A, cganA2B, cganB2A, dataA, dataB,
         
         #save the model and generated output after defined intervals
         if (step+1) % (batch_per_epoch*summary_interval) == 0:
-            mu.evaluate_model_performance(genA2B, dataA, step, 'GenA2B')
-            mu.evaluate_model_performance(genB2A, dataB, step, 'GenB2A')
+            mu.evaluate_model_performance(genA2B, dataA, step, name=nameA2B)
+            mu.evaluate_model_performance(genB2A, dataB, step, name=nameB2A)
             
         
         
