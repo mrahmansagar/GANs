@@ -19,6 +19,7 @@ from keras.optimizers import Adam
 from keras.initializers import RandomNormal
 from keras.models import Model
 from keras.layers import Input, Conv2D, Conv2DTranspose, Concatenate
+from keras.layers import Conv3D, Conv3DTranspose
 from keras.layers import Activation, LeakyReLU
 from keras.layers import BatchNormalization, Dropout
 
@@ -47,6 +48,19 @@ def build_discriminator(input_shape, optimizer=Adam, lr=0.0002, beta1=0.5,
         keras.models.Model: Compiled discriminator model.
     """
     
+  
+    if len(input_shape) == 3:
+        # Use Conv2D for 2D image data
+        conv_layer = Conv2D
+        kernel_size = (4, 4)
+        strides = (2, 2)
+    elif len(input_shape) == 4:
+        # Use Conv3D for 3D volumetric data
+        conv_layer = Conv3D
+        kernel_size = (4, 4, 4)
+        strides = (2, 2, 2)
+    else:
+        raise ValueError("Input shape length should be 3 (2D image) or 4 (3D volumetric data).")
     
     # weight initialization according to the original pix2pix paper
     init = RandomNormal(stddev=0.02)
@@ -56,31 +70,32 @@ def build_discriminator(input_shape, optimizer=Adam, lr=0.0002, beta1=0.5,
     
     #concatenate
     merge = Concatenate()([src_input, tar_input])
-    d = Conv2D(64, (4,4), strides=(2,2), padding='same', 
+     
+    d = conv_layer(64, kernel_size=kernel_size, strides=strides, padding='same', 
                kernel_initializer=init)(merge)
     d = LeakyReLU(alpha=0.2)(d)
     
-    d = Conv2D(128, (4,4), strides=(2,2), padding='same', 
+    d = conv_layer(128, kernel_size=kernel_size, strides=strides, padding='same', 
                kernel_initializer=init)(d)
     d = BatchNormalization()(d)
     d = LeakyReLU(alpha=0.2)(d)
     
-    d = Conv2D(256, (4,4), strides=(2,2), padding='same', 
+    d = conv_layer(256, kernel_size=kernel_size, strides=strides, padding='same', 
                kernel_initializer=init)(d)
     d = BatchNormalization()(d)
     d = LeakyReLU(alpha=0.2)(d)
     
-    d = Conv2D(512, (4,4), strides=(2,2), padding='same', 
+    d = conv_layer(512, kernel_size=kernel_size, strides=strides, padding='same', 
                kernel_initializer=init)(d)
     d = BatchNormalization()(d)
     d = LeakyReLU(alpha=0.2)(d)
     
-    d = Conv2D(512, (4,4), padding='same', 
+    d = conv_layer(512, kernel_size=kernel_size, padding='same', 
                kernel_initializer=init)(d)
     d = BatchNormalization()(d)
     d = LeakyReLU(alpha=0.2)(d)
     
-    d = Conv2D(1, (4,4), padding='same', 
+    d = conv_layer(1, kernel_size=kernel_size, padding='same', 
                kernel_initializer=init)(d)
     patch_out = Activation('sigmoid')(d)
     # the reason there is no flatten and Dense layer at the end is because the original paper uses the 
@@ -93,8 +108,7 @@ def build_discriminator(input_shape, optimizer=Adam, lr=0.0002, beta1=0.5,
     opt = optimizer(learning_rate=lr, beta_1=beta1)
     model.compile(loss=loss, optimizer=opt, loss_weights=loss_weights)
     return model
-
-
+    
 
 
 # Generator model 
@@ -108,103 +122,119 @@ def build_generator(input_shape):
     Returns:
         keras.models.Model: Generator model.
     """
+    if len(input_shape) == 3:
+        # Use Conv2D for 2D image data
+        conv_layer = Conv2D
+        convTranspose_layer = Conv2DTranspose
+        kernel_size = (4, 4)
+        strides = (2, 2)
+    elif len(input_shape) == 4:
+        # Use Conv3D for 3D volumetric data
+        conv_layer = Conv3D
+        convTranspose_layer = Conv3DTranspose
+        kernel_size = (4, 4, 4)
+        strides = (2, 2, 2)
+    else:
+        raise ValueError("Input shape length should be 3 (2D image) or 4 (3D volumetric data).")
+    
     init = RandomNormal(stddev=0.02)
     
     input_img = Input(shape=input_shape)
     
     # encoder block
-    e1 = Conv2D(64, (4,4), strides=(2,2), padding='same', 
+    e1 = conv_layer(64, kernel_size=kernel_size, strides=strides, padding='same', 
                 kernel_initializer=init)(input_img)
     e1 = LeakyReLU(alpha=0.2)(e1)
     
-    e2 = Conv2D(128, (4,4), strides=(2,2), padding='same', 
+    e2 = conv_layer(128, kernel_size=kernel_size, strides=strides, padding='same', 
                 kernel_initializer=init)(e1)
     e2 = BatchNormalization()(e2, training=True)
     e2 = LeakyReLU(alpha=0.2)(e2)
     
-    e3 = Conv2D(256, (4,4), strides=(2,2), padding='same', 
+    e3 = conv_layer(256, kernel_size=kernel_size, strides=strides, padding='same', 
                 kernel_initializer=init)(e2)
     e3 = BatchNormalization()(e3, training=True)
     e3 = LeakyReLU(alpha=0.2)(e3)
     
-    e4 = Conv2D(512, (4,4), strides=(2,2), padding='same', 
+    e4 = conv_layer(512, kernel_size=kernel_size, strides=strides, padding='same', 
                 kernel_initializer=init)(e3)
     e4 = BatchNormalization()(e4, training=True)
     e4 = LeakyReLU(alpha=0.2)(e4)
     
-    e5 = Conv2D(512, (4,4), strides=(2,2), padding='same', 
+    e5 = conv_layer(512, kernel_size=kernel_size, strides=strides, padding='same', 
                 kernel_initializer=init)(e4)
     e5 = BatchNormalization()(e5, training=True)
     e5 = LeakyReLU(alpha=0.2)(e5)
     
-    e6 = Conv2D(512, (4,4), strides=(2,2), padding='same', 
+    e6 = conv_layer(512, kernel_size=kernel_size, strides=strides, padding='same', 
                 kernel_initializer=init)(e5)
     e6 = BatchNormalization()(e6, training=True)
     e6 = LeakyReLU(alpha=0.2)(e6)
     
-    e7 = Conv2D(512, (4,4), strides=(2,2), padding='same', 
+    e7 = conv_layer(512, kernel_size=kernel_size, strides=strides, padding='same', 
                 kernel_initializer=init)(e6)
     e7 = BatchNormalization()(e7, training=True)
     e7 = LeakyReLU(alpha=0.2)(e7)
     
     # bottleneck, no batch norm and relu
-    b = Conv2D(512, (4,4), strides=(2,2), padding='same', 
+    b = conv_layer(512, kernel_size=kernel_size, strides=strides, padding='same', 
                kernel_initializer=init)(e7)
     b = Activation('relu')(b)
     
     # decoder block
-    d1 = Conv2DTranspose(512, (4,4), strides=(2,2), padding='same', 
+    d1 = convTranspose_layer(512, kernel_size=kernel_size, strides=strides, padding='same', 
                          kernel_initializer=init)(b)
     d1 = BatchNormalization()(d1, training=True)
     d1 = Dropout(0.5)(d1, training=True)
     d1 = Concatenate()([d1, e7])
     d1 = Activation('relu')(d1)
     
-    d2 = Conv2DTranspose(512, (4,4), strides=(2,2), padding='same', 
+    d2 = convTranspose_layer(512, kernel_size=kernel_size, strides=strides, padding='same', 
                          kernel_initializer=init)(d1)
     d2 = BatchNormalization()(d2, training=True)
     d2 = Dropout(0.5)(d2, training=True)
     d2 = Concatenate()([d2, e6])
     d2 = Activation('relu')(d2)
     
-    d3 = Conv2DTranspose(512, (4,4), strides=(2,2), padding='same', 
+    d3 = convTranspose_layer(512, kernel_size=kernel_size, strides=strides, padding='same', 
                          kernel_initializer=init)(d2)
     d3 = BatchNormalization()(d3, training=True)
     d3 = Dropout(0.5)(d3, training=True)
     d3 = Concatenate()([d3, e5])
     d3 = Activation('relu')(d3)
     
-    d4 = Conv2DTranspose(512, (4,4), strides=(2,2), padding='same', 
+    d4 = convTranspose_layer(512, kernel_size=kernel_size, strides=strides, padding='same', 
                          kernel_initializer=init)(d3)
     d4 = BatchNormalization()(d4, training=True)
     d4 = Concatenate()([d4, e4])
     d4 = Activation('relu')(d4)
     
-    d5 = Conv2DTranspose(256, (4,4), strides=(2,2), padding='same', 
+    d5 = convTranspose_layer(256, kernel_size=kernel_size, strides=strides, padding='same', 
                          kernel_initializer=init)(d4)
     d5 = BatchNormalization()(d5, training=True)
     d5 = Concatenate()([d5, e3])
     d5 = Activation('relu')(d5)
     
-    d6 = Conv2DTranspose(128, (4,4), strides=(2,2), padding='same', 
+    d6 = convTranspose_layer(128, kernel_size=kernel_size, strides=strides, padding='same', 
                          kernel_initializer=init)(d5)
     d6 = BatchNormalization()(d6, training=True)
     d6 = Concatenate()([d6, e2])
     d6 = Activation('relu')(d6)
     
-    d7 = Conv2DTranspose(64, (4,4), strides=(2,2), padding='same', 
+    d7 = convTranspose_layer(64, kernel_size=kernel_size, strides=strides, padding='same', 
                          kernel_initializer=init)(d6)
     d7 = BatchNormalization()(d7, training=True)
     d7 = Concatenate()([d7, e1])
     d7 = Activation('relu')(d7)
     
     
-    g = Conv2DTranspose(input_shape[2], (4,4), strides=(2,2), padding='same', 
+    g = convTranspose_layer(input_shape[-1], kernel_size=kernel_size, strides=strides, padding='same', 
                         kernel_initializer=init)(d7) #Modified 
     out_image = Activation('tanh')(g)  #Generates images in the range -1 to 1. So change inputs also to -1 to 1
     # define model
     model = Model(input_img, out_image)
     return model
+
 
 # building combined model
 def build_pix2pix(generator, discriminator, input_shape, opt=Adam, lr=0.0002, beta1=0.5,
@@ -276,7 +306,7 @@ def train_pix2pix(gen, dis, cgan, src_data, tar_data, batch_size=1, epochs=10,
    """
     
     # output patch shape of the patchGAN discriminator
-    patch_size = dis.output_shape[1]
+    patch_size = dis.output_shape[1:]
     
     batch_per_epoch = int(len(src_data) / batch_size)
     
@@ -286,7 +316,7 @@ def train_pix2pix(gen, dis, cgan, src_data, tar_data, batch_size=1, epochs=10,
         idx = np.random.randint(0, src_data.shape[0], batch_size)
         X_src = src_data[idx]
         X_tar = tar_data[idx]
-        y_real = np.ones(shape=(batch_size, patch_size, patch_size, 1))        
+        y_real = np.ones(shape=(batch_size, *patch_size))        
         
         #train on real sample
         d_loss_real = dis.train_on_batch([X_src, X_tar], y_real)
@@ -307,6 +337,7 @@ def train_pix2pix(gen, dis, cgan, src_data, tar_data, batch_size=1, epochs=10,
         
         #save the model and generated output after defined intervals
         if (step+1) % (batch_per_epoch*summary_interval) == 0:
+            # Todo: adjust for 3D data
             mu.evaluate_model_performance(gen, src_data, step, name=name)
     
     
