@@ -8,9 +8,11 @@ PhD Researcher | MPI-NAT Goettingen, Germany
 Helper functions for pix2pix model
 
 """
-
+import os
 import numpy as np
 import matplotlib.pyplot as plt
+
+from .. import utils
 
 def generate_fake_samples(gen_model, data, patchgan_output_size):
     """
@@ -30,7 +32,7 @@ def generate_fake_samples(gen_model, data, patchgan_output_size):
     
     #creating labels for fake samples of size pathgan_output_shape. labels for
     #fake/generated samples are 0
-    y_fake = np.zeros(shape=(len(data), patchgan_output_size, patchgan_output_size, 1))
+    y_fake = np.zeros(shape=(len(data), *patchgan_output_size))
     
     return X_fake, y_fake
 
@@ -62,28 +64,103 @@ def evaluate_model_performance(gen_model, data, iteration, name, sample_size=5):
     X_gen = (X_gen + 1)/ 2.0
     
     
-    # ploting the images 
-    plt.figure(figsize=(sample_size*2, sample_size))
-    plt.tight_layout()
-    plt.subplots_adjust(wspace=0, hspace=0)
-    for i in range(sample_size):
-        plt.subplot(2, sample_size, i+1)
-        plt.axis('off')
-        if X.shape[3] == 1:
-            plt.imshow(X[i], cmap='gray')
-        else:
-            plt.imshow(X[i])
+    if len(data.shape) == 4:
+        # Use 2D image data for plotting
+        # ploting the images 
+        plt.figure(figsize=(sample_size*2, sample_size))
+        plt.tight_layout()
+        plt.subplots_adjust(wspace=0, hspace=0)
+        for i in range(sample_size):
+            plt.subplot(2, sample_size, i+1)
+            plt.axis('off')
+            if X.shape[3] == 1:
+                plt.imshow(X[i], cmap='gray')
+            else:
+                plt.imshow(X[i])
+            
+            plt.subplot(2, sample_size, sample_size+1+i)
+            plt.axis('off')
+            if X.shape[3] == 1:
+                plt.imshow(X_gen[i], cmap='gray')
+            else:
+                plt.imshow(X_gen[i])
         
-        plt.subplot(2, sample_size, sample_size+1+i)
-        plt.axis('off')
-        if X.shape[3] == 1:
-            plt.imshow(X_gen[i], cmap='gray')
+        plt_name = f'{name}_plot_after_{iteration}.png'
+        plt.savefig(plt_name)
+        plt.close()
+        model_name = f'{name}_after_{iteration}.h5'
+        
+        gen_model.save(model_name)
+        
+        
+    elif len(data.shape) == 5:
+        # Use 3D volumetric data for plotting
+        
+        #folder where the results will be stored after defined iteration 
+        result_folder = f'{name}_after_{iteration}'
+        if os.path.exists(result_folder):
+            print('saving to a existing folder')
         else:
-            plt.imshow(X_gen[i])
+            os.makedirs(result_folder)
+        
+        for i in range(sample_size):
+            src_data = np.squeeze(X[i])
+            gen_data = np.squeeze(X_gen[i])
+            space_btwn = 10
+            combined_array = np.zeros(shape=(src_data.shape[0], src_data.shape[1], 2*src_data.shape[2]+space_btwn), dtype=src_data.dtype)
+            combined_array[:, :, 0:src_data.shape[1]] = src_data
+            combined_array[:, :, src_data.shape[1]+space_btwn:] = gen_data
+            
+            volume_name = f'{result_folder}/sample_{i}'
+            utils.saveSlices(combined_array, volume_name)
+        
+        model_name = f'{name}_after_{iteration}.h5'
+        gen_model.save(model_name)
+        
+    else:
+        raise ValueError("Data shape length should be 4 (2D image) or 5 (3D volumetric data).")
     
-    plt_name = f'{name}_plot_after_{iteration}.png'
-    plt.savefig(plt_name)
-    plt.close()
-    model_name = f'{name}_after_{iteration}.h5'
-    
-    gen_model.save(model_name)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

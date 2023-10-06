@@ -337,7 +337,6 @@ def train_pix2pix(gen, dis, cgan, src_data, tar_data, batch_size=1, epochs=10,
         
         #save the model and generated output after defined intervals
         if (step+1) % (batch_per_epoch*summary_interval) == 0:
-            # Todo: adjust for 3D data
             mu.evaluate_model_performance(gen, src_data, step, name=name)
     
     

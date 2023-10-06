@@ -11,7 +11,7 @@ from tqdm import tqdm
 
 import numpy as np
 import matplotlib.pyplot as plt
-
+import tifffile
 
 from keras.utils import load_img, img_to_array
 from keras.layers import Layer, InputSpec
@@ -71,6 +71,17 @@ def scale_data(data, min_pix_val=0, max_pix_val=255, final_activation='tanh'):
     
     except:
         print('Error: Activation function type is not defined.')   
+
+
+#saving the volume as series of slices 
+def saveSlices(volume, folderName):
+    depth = volume.shape[0]
+    for aSlice in range(depth):
+        img = volume[aSlice, :, :]
+        if not os.path.exists(folderName):
+            os.makedirs(folderName)
+        fName = os.path.join(folderName, f'slice_{aSlice}.tif') 
+        tifffile.imwrite(fName, img)
 
 
 #determine the number of conv block
