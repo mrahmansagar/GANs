@@ -10,7 +10,7 @@ PhD Researcher | MPI-NAT Goettingen, Germany
 # importing necessary libraries 
 import os 
 import numpy as np
-
+from datetime import datetime
 
 # importing tensorflow and keras
 import tensorflow as tf
@@ -23,7 +23,7 @@ from keras.layers import Conv3D, Conv3DTranspose
 from keras.layers import Activation, LeakyReLU
 from keras.layers import BatchNormalization, Dropout
 
-
+from .. import utils
 from . import model_utils as mu
 
 # building the discriminator model 
@@ -304,6 +304,9 @@ def train_pix2pix(gen, dis, cgan, src_data, tar_data, batch_size=1, epochs=10,
    Returns:
        None
    """
+    curr_time = datetime.now().strftime('%Y%m%d%H%M')
+    log_fileName = f'pix2pix_training_log_{curr_time}.txt'
+    log_file = utils.training_log(fileName=log_fileName)
     
     # output patch shape of the patchGAN discriminator
     patch_size = dis.output_shape[1:]
@@ -330,53 +333,15 @@ def train_pix2pix(gen, dis, cgan, src_data, tar_data, batch_size=1, epochs=10,
         
         
         # tracking the model train loss
-        print(f'Epoch> {int(step/batch_per_epoch) +1}/{epochs} > Ite> {step+1} '
+        log_message = (f'Epoch> {int(step/batch_per_epoch) +1}/{epochs} > Ite> {step+1} '
               f'dis loss real[{d_loss_real:.3f}] '
               f'dis loss fake[{d_loss_fake:.3f}] '
-              f'gen loss[{g_loss:.3f}]')
+              f'gen loss[{g_loss:.3f}]\n')
+        
+        log_file.write(log_message) 
+        print(log_message)
         
         #save the model and generated output after defined intervals
         if (step+1) % (batch_per_epoch*summary_interval) == 0:
             mu.evaluate_model_performance(gen, src_data, step, name=name)
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
     

@@ -9,7 +9,7 @@ PhD Researcher | MPI-NAT Goettingen, Germany
 # importing necessary libraries 
 import os 
 import numpy as np
-
+from datetime import datetime
 
 from sklearn.utils import shuffle
 
@@ -178,6 +178,9 @@ def train_gan(generator, discriminator, gan, data, latent_dim, batch_size=128,
     Returns:
         None
     """
+    curr_time = datetime.now().strftime('%Y%m%d%H%M')
+    log_fileName = f'GAN_training_log_{curr_time}.txt'
+    log_file = utils.training_log(fileName=log_fileName)
     
     batch_per_epoch = int(len(data) / batch_size)
     
@@ -197,16 +200,20 @@ def train_gan(generator, discriminator, gan, data, latent_dim, batch_size=128,
             y_gan = np.ones(shape=(batch_size, 1))
             
             g_loss = gan.train_on_batch(X_gan, y_gan)
+            
             # tracking the model train loss
-            print(f'Epoch> {epoch+1}/{epochs} > Ite> {batch+1} '
+            log_message = (f'Epoch> {epoch+1}/{epochs} > Ite> {batch+1} '
                   f'dis loss real[{d_loss_real:.3f}] '
                   f'dis loss fake[{d_loss_fake:.3f}] '
-                  f'gen loss[{g_loss:.3f}]')
+                  f'gen loss[{g_loss:.3f}] \n')
+            log_file.write(log_message)
+            print(log_message)
             
         #save the model and generated output after defined intervals
         if (epoch+1) % (summary_interval) == 0:
             utils.evaluate_model_performance(generator, latent_dim, epoch, name=name)
     
+    log_file.close()
 
 # trainig of gan model 
 # After each epoch dataset is shuffled and batch are extracted so that the
@@ -236,6 +243,9 @@ def train_gan2(generator, discriminator, gan, data, latent_dim, batch_size=128,
     Returns:
         None
     """
+    curr_time = datetime.now().strftime('%Y%m%d%H%M')
+    log_fileName = f'GAN_training_log_{curr_time}.txt'
+    log_file = utils.training_log(fileName=log_fileName)
     
     batch_per_epoch = int(len(data) / batch_size)
     
@@ -256,12 +266,14 @@ def train_gan2(generator, discriminator, gan, data, latent_dim, batch_size=128,
             
             g_loss = gan.train_on_batch(X_gan, y_gan)
             # tracking the model train loss
-            print(f'Epoch> {epoch+1}/{epochs} > Ite> {batch+1} '
+            log_message = (f'Epoch> {epoch+1}/{epochs} > Ite> {batch+1} '
                   f'dis loss real[{d_loss_real:.3f}] '
                   f'dis loss fake[{d_loss_fake:.3f}] '
-                  f'gen loss[{g_loss:.3f}]')
-            
+                  f'gen loss[{g_loss:.3f}] \n')
+            log_file.write(log_message)
+            print(log_message)
         #save the model and generated output after defined intervals
         if (epoch+1) % (summary_interval) == 0:
             utils.evaluate_model_performance(generator, latent_dim, epoch, name=name)
 
+    log_file.close()

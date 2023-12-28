@@ -159,7 +159,7 @@ cython_debug/
 #  option (not recommended) you can uncomment the following to ignore the entire idea folder.
 #.idea/
 
-
+model.png
 
 # ignoring example generated files 
 examples/Src2Tar_after_11899.h5

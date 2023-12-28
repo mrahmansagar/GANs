@@ -334,3 +334,36 @@ class InstanceNormalization(Layer):
         }
         base_config = super(InstanceNormalization, self).get_config()
         return dict(list(base_config.items()) + list(config.items()))
+    
+
+
+def training_log(log_dir=None, fileName=None):
+    
+    if not log_dir is None:
+        if not os.path.exists(log_dir):
+            os.makedirs(log_dir)
+    else:
+        log_dir = os.getcwd()
+    
+    if fileName is None:
+        logFile = os.path.join(log_dir, 'training_log.txt')
+    else:
+        logFile = os.path.join(log_dir, fileName)
+    
+    log_train = open(logFile, 'w')
+    
+    return log_train
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    

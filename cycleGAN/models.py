@@ -11,6 +11,7 @@ PhD Researcher | MPI-NAT Goettingen, Germany
 import os 
 import numpy as np
 
+from datetime import datetime
 
 # importing tensorflow and keras
 import tensorflow as tf
@@ -274,6 +275,12 @@ def train_cycleGAN(disA, disB, genA2B, genB2A, cganA2B, cganB2A, dataA, dataB,
     
     train_iterations = batch_per_epoch * epochs
     
+    curr_time = datetime.now().strftime('%Y%m%d%H%M')
+    log_fileName = f'cycleGAN_training_log_{curr_time}.txt'
+    log_file = utils.training_log(fileName=log_fileName)
+    
+    log_file.write('Epoch, Ite, disA_l1, disA_l2, disBl1, disBl2, genA2B_loss, genB2A_loss \n')
+    
     for step in range(train_iterations):
         # randomly selecting a real sample from both domain 
         idx = np.random.randint(0, dataA.shape[0], batch_size)
@@ -303,78 +310,20 @@ def train_cycleGAN(disA, disB, genA2B, genB2A, cganA2B, cganB2A, dataA, dataB,
         # train the discriminator model for A
         disA_loss1 = disA.train_on_batch(X_realA, y_realA)
         disA_loss2 = disA.train_on_batch(X_fakeA, y_fakeA)
-        
+          
         # tracking the model train loss
-        print(f'Epoch> {int(step/batch_per_epoch) +1}/{epochs} > Ite> {step+1} '
+        log_message = (f'Epoch> {int(step/batch_per_epoch) +1}/{epochs} > Ite> {step+1} '
               f'disA[{disA_loss1:.3f}, {disA_loss2:.3f}] '
               f'disB[{disB_loss1:.3f}, {disB_loss2:.3f}] '
-              f'gen[{genA2B_loss:.3f}, {genB2A_loss:.3f}]')
+              f'gen[{genA2B_loss:.3f}, {genB2A_loss:.3f}]\n')
+        
+        log_file.write(log_message) 
+        print(log_message)
+        
         
         #save the model and generated output after defined intervals
         if (step+1) % (batch_per_epoch*summary_interval) == 0:
             mu.evaluate_model_performance(genA2B, dataA, step, name=nameA2B)
             mu.evaluate_model_performance(genB2A, dataB, step, name=nameB2A)
-            
-        
-        
-        
-
-
-        
-        
-        
-        
-        
-        
-        
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
+                 
+    log_file.close()
