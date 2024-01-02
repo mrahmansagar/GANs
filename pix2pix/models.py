@@ -286,7 +286,7 @@ def build_pix2pix(generator, discriminator, input_shape, opt=Adam, lr=0.0002, be
 
 
 def train_pix2pix(gen, dis, cgan, src_data, tar_data, batch_size=1, epochs=10, 
-                   summary_interval=10, name='Src2Tar'):
+                   summary_interval=10, name='Src2Tar', **eval_kwargs):
     """
    Train a Pix2Pix model.
 
@@ -343,5 +343,5 @@ def train_pix2pix(gen, dis, cgan, src_data, tar_data, batch_size=1, epochs=10,
         
         #save the model and generated output after defined intervals
         if (step+1) % (batch_per_epoch*summary_interval) == 0:
-            mu.evaluate_model_performance(gen, src_data, step, name=name)
+            mu.evaluate_model_performance(gen, src_data, step, name=name, **eval_kwargs)
     
