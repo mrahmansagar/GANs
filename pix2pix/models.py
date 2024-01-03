@@ -28,7 +28,7 @@ from . import model_utils as mu
 
 # building the discriminator model 
 def build_discriminator(input_shape, optimizer=Adam, lr=0.0002, beta1=0.5, 
-                        loss='binary_crossentropy', loss_weights=[0.5]):
+                        loss='binary_crossentropy', loss_weights=[0.5], metrics=None):
     """
     Build and compile a discriminator model for use in image-to-image translation
     using the PatchGAN architecture.
@@ -106,7 +106,7 @@ def build_discriminator(input_shape, optimizer=Adam, lr=0.0002, beta1=0.5,
     
     # compile model
     opt = optimizer(learning_rate=lr, beta_1=beta1)
-    model.compile(loss=loss, optimizer=opt, loss_weights=loss_weights)
+    model.compile(loss=loss, optimizer=opt, loss_weights=loss_weights, metrics=metrics)
     return model
     
 
@@ -322,21 +322,21 @@ def train_pix2pix(gen, dis, cgan, src_data, tar_data, batch_size=1, epochs=10,
         y_real = np.ones(shape=(batch_size, *patch_size))        
         
         #train on real sample
-        d_loss_real = dis.train_on_batch([X_src, X_tar], y_real)
+        d_real = dis.train_on_batch([X_src, X_tar], y_real, return_dict=True)
         #train on fake sample
         X_tar_fake, y_fake = mu.generate_fake_samples(gen, X_src, patch_size)
         
-        d_loss_fake = dis.train_on_batch([X_src, X_tar_fake], y_fake)
+        d_fake = dis.train_on_batch([X_src, X_tar_fake], y_fake, return_dict=True)
 
         # update the generator model 
         g_loss, _, _ = cgan.train_on_batch(X_src, [y_real, X_tar])
         
         
         # tracking the model train loss
-        log_message = (f'Epoch> {int(step/batch_per_epoch) +1}/{epochs} > Ite> {step+1} '
-              f'dis loss real[{d_loss_real:.3f}] '
-              f'dis loss fake[{d_loss_fake:.3f}] '
-              f'gen loss[{g_loss:.3f}]\n')
+        log_message = (f'Epoch> {int(step/batch_per_epoch) +1}/{epochs} > Ite> {step+1}> '
+              f'dis_real:[{",".join([f"{key}={value:.3f}" for key, value in d_real.items()])}]> '
+              f'dis_fake:[{",".join([f"{key}={value:.3f}" for key, value in d_fake.items()])}]> '
+              f'gen_loss:[{g_loss:.3f}]\n')
         
         log_file.write(log_message) 
         print(log_message)
