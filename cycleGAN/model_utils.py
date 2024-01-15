@@ -8,7 +8,7 @@ PhD Researcher | MPI-NAT Goettingen, Germany
 Helper functions for cycleGAN model
 
 """
-
+import os
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -70,7 +70,7 @@ def update_generated_image_pool(maintained_pool, images, max_pool_size=50):
     return np.asarray(selected_image)
         
             
-    
+# ToDo: optimize for 3d data    
 def evaluate_model_performance(gen_model, data, iteration, name, sample_size=5):
     """
     Evaluate and visualize the performance of a generator model by generating and plotting images.
@@ -115,11 +115,10 @@ def evaluate_model_performance(gen_model, data, iteration, name, sample_size=5):
         else:
             plt.imshow(X_gen[i])
     
-    plt_name = f'{name}_plot_after_{iteration}.png'
+    plt_name = os.path.join(name, f'output_after_{iteration}.png')
     plt.savefig(plt_name)
     plt.close()
-    model_name = f'{name}_after_{iteration}.h5'
-    
+    model_name = os.path.join(name, f'model_after_{iteration}.h5')
     gen_model.save(model_name)
     
     

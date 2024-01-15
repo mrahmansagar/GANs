@@ -66,6 +66,7 @@ def evaluate_model_performance(gen_model, data, iteration, name, sample_size=5):
     
     if len(data.shape) == 4:
         # Use 2D image data for plotting
+        
         # ploting the images 
         plt.figure(figsize=(sample_size*2, sample_size))
         plt.tight_layout()
@@ -85,11 +86,11 @@ def evaluate_model_performance(gen_model, data, iteration, name, sample_size=5):
             else:
                 plt.imshow(X_gen[i])
         
-        plt_name = f'{name}_plot_after_{iteration}.png'
+        plt_name = os.path.join(name, f'output_after_{iteration}.png')
         plt.savefig(plt_name)
         plt.close()
-        model_name = f'{name}_after_{iteration}.h5'
-        
+        #saving the model at the iteration 
+        model_name = os.path.join(name, f'model_after_{iteration}.h5')
         gen_model.save(model_name)
         
         
@@ -111,10 +112,10 @@ def evaluate_model_performance(gen_model, data, iteration, name, sample_size=5):
             combined_array[:, :, 0:src_data.shape[1]] = src_data
             combined_array[:, :, src_data.shape[1]+space_btwn:] = gen_data
             
-            volume_name = f'{result_folder}/sample_{i}'
+            volume_name = os.path.join(name, f'sample_{i}')
             utils.saveSlices(combined_array, volume_name)
         
-        model_name = f'{name}_after_{iteration}.h5'
+        model_name = os.path.join(name, f'model_after_{iteration}.h5')
         gen_model.save(model_name)
         
     else:

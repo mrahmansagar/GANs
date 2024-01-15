@@ -138,6 +138,7 @@ def generate_fake_samples(generator, latent_dim, batch_size):
     y_f = np.zeros(shape=(batch_size, 1))
     return x_f, y_f
 
+
 def evaluate_model_performance(gen_model, latent_dim, iteration, name='gen'):
     """
     Evaluate and save the performance of a GAN-generated model.
@@ -174,14 +175,31 @@ def evaluate_model_performance(gen_model, latent_dim, iteration, name='gen'):
         plt.imshow(X[i, :, :, :])
 
     
-    plt_name = f'{name}_plot_after_{iteration}.png'
+    plt_name = os.path.join(name, f'output_after_{iteration}.png')
     plt.savefig(plt_name)
     plt.close()
-    model_name = f'{name}_after_{iteration}.h5'
-    
+    #saving the model at the iteration 
+    model_name = os.path.join(name, f'model_after_{iteration}.h5')
     gen_model.save(model_name)
 
 
+def training_log(log_dir=None, fileName=None):
+    
+    if not log_dir is None:
+        if not os.path.exists(log_dir):
+            os.makedirs(log_dir)
+    else:
+        log_dir = os.getcwd()
+    
+    if fileName is None:
+        logFile = os.path.join(log_dir, 'training_log.txt')
+    else:
+        logFile = os.path.join(log_dir, fileName)
+    
+    log_train = open(logFile, 'w')
+    
+    return log_train
+    
 
 """
 This is a helper(Normalization) fuction that is needed for Cycle-GANs. This 
@@ -337,33 +355,3 @@ class InstanceNormalization(Layer):
     
 
 
-def training_log(log_dir=None, fileName=None):
-    
-    if not log_dir is None:
-        if not os.path.exists(log_dir):
-            os.makedirs(log_dir)
-    else:
-        log_dir = os.getcwd()
-    
-    if fileName is None:
-        logFile = os.path.join(log_dir, 'training_log.txt')
-    else:
-        logFile = os.path.join(log_dir, fileName)
-    
-    log_train = open(logFile, 'w')
-    
-    return log_train
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    

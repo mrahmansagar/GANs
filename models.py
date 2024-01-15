@@ -155,7 +155,7 @@ def build_gan(generator, discriminator, optimizer=Adam, lr=0.0002, beta1=0.5,
 # trainig of gan model 
 # Each batch is selected randomly from the entire dataset while training 
 def train_gan(generator, discriminator, gan, data, latent_dim, batch_size=128, 
-              epochs=100, summary_interval=10, name='gen'):
+              epochs=100, summary_interval=10, name='GAN'):
     """
     Train a Generative Adversarial Network (GAN). 
     Each batch is selected randomly from the entire dataset while training   
@@ -179,7 +179,15 @@ def train_gan(generator, discriminator, gan, data, latent_dim, batch_size=128,
         None
     """
     curr_time = datetime.now().strftime('%Y%m%d%H%M')
-    log_fileName = f'GAN_training_log_{curr_time}.txt'
+    # creating a folder to store training log, models and outputs  
+    output_folder = f'{name}_{curr_time}'
+    
+    if os.path.exists(output_folder):
+        print('saving to a existing folder')
+    else:
+        os.makedirs(output_folder)
+    
+    log_fileName = os.path.join(output_folder, 'training_log.txt')
     log_file = utils.training_log(fileName=log_fileName)
     
     batch_per_epoch = int(len(data) / batch_size)
@@ -211,7 +219,7 @@ def train_gan(generator, discriminator, gan, data, latent_dim, batch_size=128,
             
         #save the model and generated output after defined intervals
         if (epoch+1) % (summary_interval) == 0:
-            utils.evaluate_model_performance(generator, latent_dim, epoch, name=name)
+            utils.evaluate_model_performance(generator, latent_dim, epoch, name=output_folder)
     
     log_file.close()
 
@@ -244,7 +252,15 @@ def train_gan2(generator, discriminator, gan, data, latent_dim, batch_size=128,
         None
     """
     curr_time = datetime.now().strftime('%Y%m%d%H%M')
-    log_fileName = f'GAN_training_log_{curr_time}.txt'
+    # creating a folder to store training log, models and outputs  
+    output_folder = f'{name}_{curr_time}'
+    
+    if os.path.exists(output_folder):
+        print('saving to a existing folder')
+    else:
+        os.makedirs(output_folder)
+    
+    log_fileName = os.path.join(output_folder, 'training_log.txt')
     log_file = utils.training_log(fileName=log_fileName)
     
     batch_per_epoch = int(len(data) / batch_size)
@@ -274,6 +290,6 @@ def train_gan2(generator, discriminator, gan, data, latent_dim, batch_size=128,
             print(log_message)
         #save the model and generated output after defined intervals
         if (epoch+1) % (summary_interval) == 0:
-            utils.evaluate_model_performance(generator, latent_dim, epoch, name=name)
+            utils.evaluate_model_performance(generator, latent_dim, epoch, name=output_folder)
 
     log_file.close()

@@ -286,7 +286,7 @@ def build_pix2pix(generator, discriminator, input_shape, opt=Adam, lr=0.0002, be
 
 
 def train_pix2pix(gen, dis, cgan, src_data, tar_data, batch_size=1, epochs=10, 
-                   summary_interval=10, name='Src2Tar', **eval_kwargs):
+                   summary_interval=10, name='pix2pix', **eval_kwargs):
     """
    Train a Pix2Pix model.
 
@@ -305,8 +305,18 @@ def train_pix2pix(gen, dis, cgan, src_data, tar_data, batch_size=1, epochs=10,
        None
    """
     curr_time = datetime.now().strftime('%Y%m%d%H%M')
-    log_fileName = f'pix2pix_training_log_{curr_time}.txt'
+    
+    # creating a folder to store training log, models and outputs  
+    output_folder = f'{name}_{curr_time}'
+    
+    if os.path.exists(output_folder):
+        print('saving to a existing folder')
+    else:
+        os.makedirs(output_folder)
+    
+    log_fileName = os.path.join(output_folder, 'training_log.txt')
     log_file = utils.training_log(fileName=log_fileName)
+    
     
     # output patch shape of the patchGAN discriminator
     patch_size = dis.output_shape[1:]
@@ -343,5 +353,5 @@ def train_pix2pix(gen, dis, cgan, src_data, tar_data, batch_size=1, epochs=10,
         
         #save the model and generated output after defined intervals
         if (step+1) % (batch_per_epoch*summary_interval) == 0:
-            mu.evaluate_model_performance(gen, src_data, step, name=name, **eval_kwargs)
+            mu.evaluate_model_performance(gen, src_data, step, name=output_folder, **eval_kwargs)
     

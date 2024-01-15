@@ -239,7 +239,7 @@ def build_cycleGAN(gen1, dis, gen2, input_shape, opt=Adam, lr=0.0002, beta1=0.5,
 
 
 def train_cycleGAN(disA, disB, genA2B, genB2A, cganA2B, cganB2A, dataA, dataB, 
-                   batch_size=1, epochs=10, summary_interval=10, nameA2B='GenA2B', nameB2A='GenB2A'):
+                   batch_size=1, epochs=10, summary_interval=10, name='cycleGAN', nameA2B='GenA2B', nameB2A='GenB2A'):
     """
     Train a CycleGAN model for image-to-image translation.
 
@@ -265,6 +265,20 @@ def train_cycleGAN(disA, disB, genA2B, genB2A, cganA2B, cganB2A, dataA, dataB,
         None
     """
     
+    curr_time = datetime.now().strftime('%Y%m%d%H%M')
+    
+    # creating a folder to store training log, models and outputs  
+    output_folder = f'{name}_{curr_time}'
+    
+    if os.path.exists(output_folder):
+        print('saving to a existing folder')
+    else:
+        os.makedirs(output_folder)
+    
+    log_fileName = os.path.join(output_folder, 'training_log.txt')
+    log_file = utils.training_log(fileName=log_fileName)
+    
+    
     # output patch shape of the patchGAN discriminator
     patch_size = disA.output_shape[1]
     
@@ -275,11 +289,6 @@ def train_cycleGAN(disA, disB, genA2B, genB2A, cganA2B, cganB2A, dataA, dataB,
     
     train_iterations = batch_per_epoch * epochs
     
-    curr_time = datetime.now().strftime('%Y%m%d%H%M')
-    log_fileName = f'cycleGAN_training_log_{curr_time}.txt'
-    log_file = utils.training_log(fileName=log_fileName)
-    
-    log_file.write('Epoch, Ite, disA_l1, disA_l2, disBl1, disBl2, genA2B_loss, genB2A_loss \n')
     
     for step in range(train_iterations):
         # randomly selecting a real sample from both domain 
@@ -320,6 +329,8 @@ def train_cycleGAN(disA, disB, genA2B, genB2A, cganA2B, cganB2A, dataA, dataB,
         log_file.write(log_message) 
         print(log_message)
         
+        nameA2B = os.path.join(output_folder, nameA2B)
+        nameB2A = os.path.join(output_folder, nameB2A)
         
         #save the model and generated output after defined intervals
         if (step+1) % (batch_per_epoch*summary_interval) == 0:
