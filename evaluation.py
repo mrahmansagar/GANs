@@ -10,19 +10,16 @@ Modules to Quantitatively evaluate the GANs
 
 import numpy as np
 
-def relative_error(generated, real):
-    """
-    Calculate the relative error between two numpy arrays.
-
-    The relative error is defined as the absolute difference between the sums
-    of the two arrays divided by the sum of the 'real' array.
-
-    Parameters:
-    generated (numpy.ndarray): The generated array.
-    real (numpy.ndarray): The real array to compare against.
-
-    Returns:
-    float: The relative error between the 'generated' and 'real' arrays.
+def relative_error(generated, real, epsilon=1e-10):
+    """ 
+   Calculate Relative Error (RE) between generated and ground truth,
+   while avoiding division by zero by masking zero ground truth values.
+   Args:
+   - predicted: numpy array of shape (256, 256, 256) representing the predicted volume.
+   - ground_truth: numpy array of shape (256, 256, 256) representing the ground truth volume.
+   - epsilon: Small constant to avoid division by zero (default is 1e-10).
+   Returns:
+   - RE: Relative Error for the 3D volume.
 
     Raises:
     TypeError: If either input is not a numpy array or if the data types do not match.
@@ -42,17 +39,25 @@ def relative_error(generated, real):
     if generated.dtype != real.dtype:
         raise TypeError("The 'generated' and 'real' inputs must have the same data type.")
     
-    # Calculate the total pixel values
-    total_pix_gen = np.sum(generated)
-    total_pix_real = np.sum(real)
     
-    # Calculate the relative error
-    re = np.abs(total_pix_gen - total_pix_real) / total_pix_real
+    generated = generated.astype(np.float64)
+    real = real.astype(np.float64)
     
-    return re
+    # Create a mask where ground_truth is not zero
+    nonzero_mask = np.abs(real) > epsilon
+    
+    # Calculate absolute difference and relative error only where ground_truth is non-zero
+    abs_diff = np.abs(generated - real)
+    rel_error = np.zeros_like(abs_diff)
+    rel_error[nonzero_mask] = abs_diff[nonzero_mask] / np.abs(real[nonzero_mask])
+    
+    # Compute mean relative error over all voxels
+    mean_rel_error = np.mean(rel_error)
+    return mean_rel_error
 
 
-import numpy as np
+
+
 from scipy.ndimage import gaussian_filter
 
 def calculate_ssim(image1, image2):
