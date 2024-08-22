@@ -9,6 +9,8 @@ Modules to Quantitatively evaluate the GANs
 """
 
 import numpy as np
+import math
+from scipy.ndimage import gaussian_filter
 
 def relative_error(generated, real, epsilon=1e-10):
     """ 
@@ -57,10 +59,7 @@ def relative_error(generated, real, epsilon=1e-10):
 
 
 
-
-from scipy.ndimage import gaussian_filter
-
-def calculate_ssim(image1, image2):
+def ssim(image1, image2):
     """
     Calculate the Structural Similarity Index (SSIM) between two images or volumes.
 
@@ -129,5 +128,61 @@ def calculate_ssim(image1, image2):
     
     return ssim_map.mean()
 
+
+
+
+
+def psnr(img1, img2):
+    """
+    Calculate the Peak Signal-to-Noise Ratio (PSNR) between two 2D or 3D grayscale images or volumes.
+
+    PSNR is expressed in decibels (dB) and provides a quantitative measurement of the difference
+    between the two images. A higher PSNR value indicates closer similarity to the reference image,
+    while a lower PSNR value indicates more difference.
+
+    Args:
+    - img1: numpy ndarray of shape (H, W) or (H, W, D), representing the first image/volume (ground truth).
+    - img2: numpy ndarray of the same shape as img1, representing the second image/volume (predicted).
+
+    Returns:
+    - PSNR: Peak Signal-to-Noise Ratio in decibels (dB). If the Mean Squared Error (MSE) is 0, 
+      indicating identical images, the function returns infinity.
+
+    Raises:
+    - ValueError: If img1 and img2 have different shapes, data types, or if they are not numpy ndarrays.
+
+    Example:
+    ```
+    psnr_value = calculate_psnr(img1, img2)
+    print(f"PSNR: {psnr_value:.2f} dB")
+    ```
+    """
+    
+    # Check if inputs are numpy ndarrays
+    if not isinstance(img1, np.ndarray) or not isinstance(img2, np.ndarray):
+        raise ValueError("Both inputs must be numpy ndarrays.")
+    
+    # Check if inputs have the same shape
+    if img1.shape != img2.shape:
+        raise ValueError("Input images must have the same dimensions.")
+    
+    # Check if inputs have the same data type
+    if img1.dtype != img2.dtype:
+        raise ValueError("Input images must have the same data type.")
+    
+    # Convert inputs to float64 for PSNR calculation
+    img1 = img1.astype(np.float64)
+    img2 = img2.astype(np.float64)
+    
+    # Calculate Mean Squared Error (MSE)
+    mse = np.mean((img1 - img2) ** 2)
+    
+    # If MSE is 0, return infinity (images are identical)
+    if mse == 0:
+        return float('inf')
+    
+    # Calculate PSNR
+    psnr = 20 * math.log10(255.0 / math.sqrt(mse))
+    return psnr
 
 
