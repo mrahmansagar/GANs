@@ -115,10 +115,12 @@ def evaluate_model_performance(gen_model, data, iteration, name, sample_size=5):
         else:
             plt.imshow(X_gen[i])
     
-    plt_name = os.path.join(name, f'output_after_{iteration}.png')
+    #plt_name = os.path.join(name, f'output_after_{iteration}.png')
+    plt_name = f'{name}_output_after_{iteration}.png'
     plt.savefig(plt_name)
     plt.close()
-    model_name = os.path.join(name, f'model_after_{iteration}.h5')
+    #model_name = os.path.join(name, f'model_after_{iteration}.h5')
+    model_name = f'{name}_model_after_{iteration}.h5'
     gen_model.save(model_name)
     
     

@@ -329,12 +329,12 @@ def train_cycleGAN(disA, disB, genA2B, genB2A, cganA2B, cganB2A, dataA, dataB,
         log_file.write(log_message) 
         print(log_message)
         
-        nameA2B = os.path.join(output_folder, nameA2B)
-        nameB2A = os.path.join(output_folder, nameB2A)
+        #nameA2B = os.path.join(output_folder, nameA2B)
+        #nameB2A = os.path.join(output_folder, nameB2A)
         
         #save the model and generated output after defined intervals
         if (step+1) % (batch_per_epoch*summary_interval) == 0:
-            mu.evaluate_model_performance(genA2B, dataA, step, name=nameA2B)
-            mu.evaluate_model_performance(genB2A, dataB, step, name=nameB2A)
+            mu.evaluate_model_performance(genA2B, dataA, step, name=os.path.join(output_folder, nameA2B))
+            mu.evaluate_model_performance(genB2A, dataB, step, name=os.path.join(output_folder, nameB2A))
                  
     log_file.close()
