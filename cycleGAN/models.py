@@ -351,9 +351,11 @@ def train_cycleGAN(disA, disB, genA2B, genB2A, cganA2B, cganB2A, dataA, dataB,
     minutes, seconds = divmod(remainder, 60)
 
     # Print the time taken for the training 
-    training_time = f'Training Time: {days} days, {hours} hours, {minutes} minutes, {seconds} seconds, {microseconds} microseconds'
+    training_time = f'Training Time: {days} days, {hours} hours, {minutes} minutes, {seconds} seconds, {microseconds} microseconds\n'
     log_file.write('\n')
     log_file.write(training_time)
-    log_file.write(f'batch size={batch_size}, epochs={epochs}, summary interval={summary_interval}')
-    log_file.write(f'data size={len(len(dataA))}')      
+    log_file.write(f'batch size={batch_size}\n')
+    log_file.write(f'epochs={epochs}\n')
+    log_file.write(f'summary interval={summary_interval}\n')
+    log_file.write(f'data size={len(dataA)}\n')      
     log_file.close()
