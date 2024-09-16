@@ -317,6 +317,11 @@ def train_pix2pix(gen, dis, cgan, src_data, tar_data, batch_size=1, epochs=10,
     log_fileName = os.path.join(output_folder, 'training_log.txt')
     log_file = utils.training_log(fileName=log_fileName)
     
+    log_file.write(f'batch size={batch_size}\n')
+    log_file.write(f'epochs={epochs}\n')
+    log_file.write(f'summary interval={summary_interval}\n')
+    log_file.write(f'data size={len(src_data)}\n')  
+    log_file.write('\n')
     
     # output patch shape of the patchGAN discriminator
     patch_size = dis.output_shape[1:]
@@ -324,6 +329,8 @@ def train_pix2pix(gen, dis, cgan, src_data, tar_data, batch_size=1, epochs=10,
     batch_per_epoch = int(len(src_data) / batch_size)
     
     train_iterations = batch_per_epoch * epochs
+    
+    start_time = datetime.now()
     
     for step in range(train_iterations):
         idx = np.random.randint(0, src_data.shape[0], batch_size)
@@ -344,9 +351,9 @@ def train_pix2pix(gen, dis, cgan, src_data, tar_data, batch_size=1, epochs=10,
         
         # tracking the model train loss
         log_message = (f'Epoch> {int(step/batch_per_epoch) +1}/{epochs} > Ite> {step+1}> '
-              f'dis_real:[{",".join([f"{key}={value:.3f}" for key, value in d_real.items()])}]> '
-              f'dis_fake:[{",".join([f"{key}={value:.3f}" for key, value in d_fake.items()])}]> '
-              f'gen_loss:[{g_loss:.3f}]\n')
+              f'dis_real:[{",".join([f"{key}={value:.5f}" for key, value in d_real.items()])}]> '
+              f'dis_fake:[{",".join([f"{key}={value:.5f}" for key, value in d_fake.items()])}]> '
+              f'gen_loss:[{g_loss:.5f}]\n')
         
         log_file.write(log_message) 
         print(log_message)
@@ -355,3 +362,21 @@ def train_pix2pix(gen, dis, cgan, src_data, tar_data, batch_size=1, epochs=10,
         if (step+1) % (batch_per_epoch*summary_interval) == 0:
             mu.evaluate_model_performance(gen, src_data, step, name=output_folder, **eval_kwargs)
     
+    end_time = datetime.now()
+    # Calculate the time difference
+    time_diff = end_time - start_time
+
+    # Extract days, seconds, and microseconds
+    days = time_diff.days
+    seconds = time_diff.seconds
+    microseconds = time_diff.microseconds
+
+    # Convert seconds to hours, minutes, and seconds
+    hours, remainder = divmod(seconds, 3600)
+    minutes, seconds = divmod(remainder, 60)
+
+    # Print the time taken for the training 
+    training_time = f'Training Time: {days} days, {hours} hours, {minutes} minutes, {seconds} seconds, {microseconds} microseconds\n'
+    log_file.write('\n')
+    log_file.write(training_time)    
+    log_file.close()

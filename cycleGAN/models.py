@@ -278,6 +278,11 @@ def train_cycleGAN(disA, disB, genA2B, genB2A, cganA2B, cganB2A, dataA, dataB,
     log_fileName = os.path.join(output_folder, 'training_log.txt')
     log_file = utils.training_log(fileName=log_fileName)
     
+    log_file.write(f'batch size={batch_size}\n')
+    log_file.write(f'epochs={epochs}\n')
+    log_file.write(f'summary interval={summary_interval}\n')
+    log_file.write(f'data size={len(dataA)}\n') 
+    log_file.write('\n')
     
     # output patch shape of the patchGAN discriminator
     patch_size = disA.output_shape[1]
@@ -353,9 +358,5 @@ def train_cycleGAN(disA, disB, genA2B, genB2A, cganA2B, cganB2A, dataA, dataB,
     # Print the time taken for the training 
     training_time = f'Training Time: {days} days, {hours} hours, {minutes} minutes, {seconds} seconds, {microseconds} microseconds\n'
     log_file.write('\n')
-    log_file.write(training_time)
-    log_file.write(f'batch size={batch_size}\n')
-    log_file.write(f'epochs={epochs}\n')
-    log_file.write(f'summary interval={summary_interval}\n')
-    log_file.write(f'data size={len(dataA)}\n')      
+    log_file.write(training_time)     
     log_file.close()
