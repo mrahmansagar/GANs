@@ -289,6 +289,7 @@ def train_cycleGAN(disA, disB, genA2B, genB2A, cganA2B, cganB2A, dataA, dataB,
     
     train_iterations = batch_per_epoch * epochs
     
+    start_time = datetime.now()
     
     for step in range(train_iterations):
         # randomly selecting a real sample from both domain 
@@ -322,19 +323,37 @@ def train_cycleGAN(disA, disB, genA2B, genB2A, cganA2B, cganB2A, dataA, dataB,
           
         # tracking the model train loss
         log_message = (f'Epoch> {int(step/batch_per_epoch) +1}/{epochs} > Ite> {step+1} '
-              f'disA[{disA_loss1:.3f}, {disA_loss2:.3f}] '
-              f'disB[{disB_loss1:.3f}, {disB_loss2:.3f}] '
-              f'gen[{genA2B_loss:.3f}, {genB2A_loss:.3f}]\n')
+              f'disA[{disA_loss1:.5f}, {disA_loss2:.5f}] '
+              f'disB[{disB_loss1:.5f}, {disB_loss2:.5f}] '
+              f'gen[{genA2B_loss:.5f}, {genB2A_loss:.5f}]\n')
         
         log_file.write(log_message) 
         print(log_message)
         
-        #nameA2B = os.path.join(output_folder, nameA2B)
-        #nameB2A = os.path.join(output_folder, nameB2A)
         
         #save the model and generated output after defined intervals
         if (step+1) % (batch_per_epoch*summary_interval) == 0:
-            mu.evaluate_model_performance(genA2B, dataA, step, name=os.path.join(output_folder, nameA2B))
-            mu.evaluate_model_performance(genB2A, dataB, step, name=os.path.join(output_folder, nameB2A))
-                 
+            mu.evaluate_model_performance(genA2B, dataA, step+1, name=os.path.join(output_folder, nameA2B))
+            mu.evaluate_model_performance(genB2A, dataB, step+1, name=os.path.join(output_folder, nameB2A))
+    
+
+    end_time = datetime.now()
+    # Calculate the time difference
+    time_diff = end_time - start_time
+
+    # Extract days, seconds, and microseconds
+    days = time_diff.days
+    seconds = time_diff.seconds
+    microseconds = time_diff.microseconds
+
+    # Convert seconds to hours, minutes, and seconds
+    hours, remainder = divmod(seconds, 3600)
+    minutes, seconds = divmod(remainder, 60)
+
+    # Print the time taken for the training 
+    training_time = f'Training Time: {days} days, {hours} hours, {minutes} minutes, {seconds} seconds, {microseconds} microseconds'
+    log_file.write('\n')
+    log_file.write(training_time)
+    log_file.write(f'batch size={batch_size}, epochs={epochs}, summary interval={summary_interval}')
+    log_file.write(f'data size={len(len(dataA))}')      
     log_file.close()
