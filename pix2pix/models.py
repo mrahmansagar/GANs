@@ -10,6 +10,7 @@ PhD Researcher | MPI-NAT Goettingen, Germany
 # importing necessary libraries 
 import os 
 import numpy as np
+from tqdm import tqdm
 from datetime import datetime
 
 # importing tensorflow and keras
@@ -332,7 +333,7 @@ def train_pix2pix(gen, dis, cgan, src_data, tar_data, batch_size=1, epochs=10,
     
     start_time = datetime.now()
     
-    for step in range(train_iterations):
+    for step in tqdm(range(train_iterations), total=train_iterations):
         idx = np.random.randint(0, src_data.shape[0], batch_size)
         X_src = src_data[idx]
         X_tar = tar_data[idx]

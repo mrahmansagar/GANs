@@ -10,6 +10,7 @@ PhD Researcher | MPI-NAT Goettingen, Germany
 # importing necessary libraries 
 import os 
 import numpy as np
+from tqdm import tqdm
 
 from datetime import datetime
 
@@ -296,7 +297,7 @@ def train_cycleGAN(disA, disB, genA2B, genB2A, cganA2B, cganB2A, dataA, dataB,
     
     start_time = datetime.now()
     
-    for step in range(train_iterations):
+    for step in tqdm(range(train_iterations), total=train_iterations):
         # randomly selecting a real sample from both domain 
         idx = np.random.randint(0, dataA.shape[0], batch_size)
         X_realA = dataA[idx]
@@ -327,7 +328,7 @@ def train_cycleGAN(disA, disB, genA2B, genB2A, cganA2B, cganB2A, dataA, dataB,
         disA_loss2 = disA.train_on_batch(X_fakeA, y_fakeA)
           
         # tracking the model train loss
-        log_message = (f'Epoch> {int(step/batch_per_epoch) +1}/{epochs} > Ite> {step+1} '
+        log_message = (f'Epoch> {int(step/batch_per_epoch) +1}/{epochs} > Ite> {step+1}/{train_iterations} '
               f'disA[{disA_loss1:.5f}, {disA_loss2:.5f}] '
               f'disB[{disB_loss1:.5f}, {disB_loss2:.5f}] '
               f'gen[{genA2B_loss:.5f}, {genB2A_loss:.5f}]\n')
