@@ -91,10 +91,6 @@ def build_discriminator(input_shape, optimizer=Adam, lr=0.0002, beta1=0.5,
     d = BatchNormalization()(d)
     d = LeakyReLU(alpha=0.2)(d)
     
-    d = conv_layer(512, kernel_size=kernel_size, padding='same', 
-               kernel_initializer=init)(d)
-    d = BatchNormalization()(d)
-    d = LeakyReLU(alpha=0.2)(d)
     
     d = conv_layer(1, kernel_size=kernel_size, padding='same', 
                kernel_initializer=init)(d)
@@ -113,7 +109,7 @@ def build_discriminator(input_shape, optimizer=Adam, lr=0.0002, beta1=0.5,
 
 
 # Generator model 
-def build_generator(input_shape):
+def build_generator(input_shape, output_shape=None):
     """
     Build a generator model for image-to-image translation using the U-Net architecture.
 
@@ -137,6 +133,12 @@ def build_generator(input_shape):
         strides = (2, 2, 2)
     else:
         raise ValueError("Input shape length should be 3 (2D image) or 4 (3D volumetric data).")
+    
+    
+    if output_shape == None:
+        out_channel = input_shape[-1]
+    else:
+        out_channel = output_shape
     
     init = RandomNormal(stddev=0.02)
     
@@ -229,7 +231,7 @@ def build_generator(input_shape):
     d7 = Activation('relu')(d7)
     
     
-    g = convTranspose_layer(input_shape[-1], kernel_size=kernel_size, strides=strides, padding='same', 
+    g = convTranspose_layer(out_channel, kernel_size=kernel_size, strides=strides, padding='same', 
                         kernel_initializer=init)(d7) #Modified 
     out_image = Activation('tanh')(g)  #Generates images in the range -1 to 1. So change inputs also to -1 to 1
     # define model
