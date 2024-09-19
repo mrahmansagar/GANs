@@ -35,7 +35,8 @@ def build_discriminator(src_shape, tar_shape, optimizer=Adam, lr=0.0002, beta1=0
     using the PatchGAN architecture.
 
     Args:
-        input_shape (tuple): Shape of the input images (height, width, channels).
+        src_shape (tuple): Shape of the source image/volume (height, width, (depth-if 3D), channels).
+        tar_shape (tuple): Shape of the target image/volume (height, width, (depth-if 3D), channels).
         opt (Optimizer, optional): The optimizer class to use for compiling the model. 
         Default is Adam.
         lr (float, optional): Learning rate for the optimizer. Default is 0.0002.
@@ -47,8 +48,7 @@ def build_discriminator(src_shape, tar_shape, optimizer=Adam, lr=0.0002, beta1=0
 
     Returns:
         keras.models.Model: Compiled discriminator model.
-    """
-    
+    """   
   
     if len(src_shape) == 3:
         # Use Conv2D for 2D image data
@@ -115,6 +115,11 @@ def build_generator(input_shape, output_channel=None):
 
     Args:
         input_shape (tuple): Shape of the input images (height, width, channels).
+        output_channel (int, optional): Number of channels for the generated image.
+        Default is None. Takes from channel from input shape. This is usefull when the 
+        input and the generated output does not have the same channel number.
+        For example input is a grayscale image with 1 channel but output is a color 
+        image with 3 channels. 
 
     Returns:
         keras.models.Model: Generator model.
@@ -240,7 +245,7 @@ def build_generator(input_shape, output_channel=None):
 
 
 # building combined model
-def build_pix2pix(generator, discriminator, input_shape, opt=Adam, lr=0.0002, beta1=0.5,
+def build_pix2pix(generator, discriminator, opt=Adam, lr=0.0002, beta1=0.5,
                    loss=['binary_crossentropy', 'mae'], loss_weights=[1,100]):
     """
     Build a combined Pix2Pix model that consists of a generator and discriminator 
@@ -249,7 +254,6 @@ def build_pix2pix(generator, discriminator, input_shape, opt=Adam, lr=0.0002, be
     Args:
         generator (keras.models.Model): The generator model.
         discriminator (keras.models.Model): The discriminator model.
-        input_shape (tuple): Shape of the input images (height, width, channels).
         opt (Optimizer, optional): The optimizer class to use for compiling 
         the model. Default is Adam.
         lr (float, optional): Learning rate for the optimizer. 
@@ -270,7 +274,7 @@ def build_pix2pix(generator, discriminator, input_shape, opt=Adam, lr=0.0002, be
             layer.trainable = False
             
     # source image
-    src_img = Input(shape=input_shape)
+    src_img = Input(shape=generator.input_shape[1:])
     
     # connect the source input to the generator input
     gen_out = generator(src_img)
@@ -302,7 +306,7 @@ def train_pix2pix(gen, dis, cgan, src_data, tar_data, batch_size=1, epochs=10,
        batch_size (int, optional): The batch size for training (default is 1).
        epochs (int, optional): The number of training epochs (default is 10).
        summary_interval (int, optional): The interval for summarizing model performance (default is 10).
-       name (str, optional): The name of the model (default is 'Src2Tar'). Relative path supported.
+       name (str, optional): The name of the model (default is 'pix2pix'). Relative path supported.
 
    Returns:
        None
