@@ -28,7 +28,7 @@ from .. import utils
 from . import model_utils as mu
 
 # building the discriminator model 
-def build_discriminator(input_shape, optimizer=Adam, lr=0.0002, beta1=0.5, 
+def build_discriminator(src_shape, tar_shape, optimizer=Adam, lr=0.0002, beta1=0.5, 
                         loss='binary_crossentropy', loss_weights=[0.5], metrics=None):
     """
     Build and compile a discriminator model for use in image-to-image translation
@@ -50,12 +50,12 @@ def build_discriminator(input_shape, optimizer=Adam, lr=0.0002, beta1=0.5,
     """
     
   
-    if len(input_shape) == 3:
+    if len(src_shape) == 3:
         # Use Conv2D for 2D image data
         conv_layer = Conv2D
         kernel_size = (4, 4)
         strides = (2, 2)
-    elif len(input_shape) == 4:
+    elif len(src_shape) == 4:
         # Use Conv3D for 3D volumetric data
         conv_layer = Conv3D
         kernel_size = (4, 4, 4)
@@ -66,8 +66,8 @@ def build_discriminator(input_shape, optimizer=Adam, lr=0.0002, beta1=0.5,
     # weight initialization according to the original pix2pix paper
     init = RandomNormal(stddev=0.02)
     
-    src_input = Input(shape=input_shape)
-    tar_input = Input(shape=input_shape)
+    src_input = Input(shape=src_shape)
+    tar_input = Input(shape=tar_shape)
     
     #concatenate
     merge = Concatenate()([src_input, tar_input])
@@ -109,7 +109,7 @@ def build_discriminator(input_shape, optimizer=Adam, lr=0.0002, beta1=0.5,
 
 
 # Generator model 
-def build_generator(input_shape, output_shape=None):
+def build_generator(input_shape, output_channel=None):
     """
     Build a generator model for image-to-image translation using the U-Net architecture.
 
@@ -135,10 +135,10 @@ def build_generator(input_shape, output_shape=None):
         raise ValueError("Input shape length should be 3 (2D image) or 4 (3D volumetric data).")
     
     
-    if output_shape == None:
-        out_channel = input_shape[-1]
+    if output_channel is None:
+        channel = input_shape[-1]
     else:
-        out_channel = output_shape
+        channel = output_channel
     
     init = RandomNormal(stddev=0.02)
     
@@ -231,7 +231,7 @@ def build_generator(input_shape, output_shape=None):
     d7 = Activation('relu')(d7)
     
     
-    g = convTranspose_layer(out_channel, kernel_size=kernel_size, strides=strides, padding='same', 
+    g = convTranspose_layer(channel, kernel_size=kernel_size, strides=strides, padding='same', 
                         kernel_initializer=init)(d7) #Modified 
     out_image = Activation('tanh')(g)  #Generates images in the range -1 to 1. So change inputs also to -1 to 1
     # define model
@@ -363,7 +363,7 @@ def train_pix2pix(gen, dis, cgan, src_data, tar_data, batch_size=1, epochs=10,
         
         #save the model and generated output after defined intervals
         if (step+1) % (batch_per_epoch*summary_interval) == 0:
-            mu.evaluate_model_performance(gen, src_data, step, name=output_folder, **eval_kwargs)
+            mu.evaluate_model_performance(gen, src_data, step+1, name=output_folder, **eval_kwargs)
     
     end_time = datetime.now()
     # Calculate the time difference
