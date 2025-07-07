@@ -81,7 +81,7 @@ def evaluate_model_performance(gen_model, data, iteration, name, sample_size=5):
             
             plt.subplot(2, sample_size, sample_size+1+i)
             plt.axis('off')
-            if X.shape[3] == 1:
+            if X_gen.shape[3] == 1:
                 plt.imshow(X_gen[i], cmap='gray')
             else:
                 plt.imshow(X_gen[i])
