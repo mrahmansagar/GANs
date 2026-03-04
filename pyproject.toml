@@ -1,0 +1,83 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "tfgans"
+version = "0.1.0"
+description = "A Python package for Generative Adversarial Networks (GANs) implemented with TensorFlow/Keras"
+readme = "README.md"
+requires-python = ">=3.8"
+license = {text = "MIT"}
+authors = [
+    {name = "Md Motiur Rahman Sagar", email = "mrahman.sagar@gmail.com"}
+]
+maintainers = [
+    {name = "Md Motiur Rahman Sagar", email = "mrahman.sagar@gmail.com"}
+]
+keywords = ["gan", "generative", "adversarial", "neural-networks", "deep-learning", "tensorflow", "keras", "machine-learning", "image-generation"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Natural Language :: English",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Topic :: Scientific/Engineering :: Image Processing",
+]
+
+dependencies = [
+    "tensorflow>=2.10.0",
+    "numpy>=1.19.0",
+    "scikit-learn>=1.0.0",
+    "scipy>=1.7.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=6.0",
+    "pytest-cov>=4.0",
+    "black>=22.0",
+    "flake8>=4.0",
+    "isort>=5.10",
+    "mypy>=0.950",
+]
+notebooks = [
+    "jupyter>=1.0",
+    "matplotlib>=3.5.0",
+    "pillow>=9.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/mrahman-sagar/GANs"
+Documentation = "https://github.com/mrahman-sagar/GANs#readme"
+Repository = "https://github.com/mrahman-sagar/GANs.git"
+"Bug Tracker" = "https://github.com/mrahman-sagar/GANs/issues"
+
+[tool.setuptools]
+packages = ["gans", "gans.cGAN", "gans.cycleGAN", "gans.pix2pix"]
+
+[tool.black]
+line-length = 100
+target-version = ['py38', 'py39', 'py310', 'py311']
+
+[tool.isort]
+profile = "black"
+line_length = 100
+
+[tool.mypy]
+python_version = "3.8"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = false
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py", "*_test.py"]
+addopts = "--cov=gans --cov-report=html --cov-report=term-missing"
