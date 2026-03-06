@@ -22,8 +22,8 @@ from keras.layers import Input, Conv2D, Conv2DTranspose, LeakyReLU, Activation, 
 from keras.optimizers import Adam 
 from keras.initializers import RandomNormal
 
-from .. import utils
-from . import model_utils as mu
+from gans import utils
+from gans.cycleGAN import model_utils as mu
 
 # building the discriminator model 
 def build_discriminator(input_shape, opt=Adam, lr=0.0002, beta1=0.5, 

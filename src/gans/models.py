@@ -22,7 +22,7 @@ from keras.layers import Dense, Conv2D, Conv2DTranspose, Flatten, Reshape
 from keras.layers import LeakyReLU, Dropout
 
 
-from . import utils
+from gans import utils
 
 
 

@@ -24,8 +24,8 @@ from keras.layers import Conv3D, Conv3DTranspose
 from keras.layers import Activation, LeakyReLU
 from keras.layers import BatchNormalization, Dropout
 
-from .. import utils
-from . import model_utils as mu
+from gans import utils
+from gans.pix2pix import model_utils as mu
 
 # building the discriminator model 
 def build_discriminator(src_shape, tar_shape, optimizer=Adam, lr=0.0002, beta1=0.5, 

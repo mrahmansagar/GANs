@@ -2,11 +2,11 @@
 """
 Created on Tue Aug 15 16:15:27 2023
 
-@author: mrahm
+@author: Md Motiur Rahman Sagar
 """
 
 import os
-from tkinter import Tcl
+from natsort import natsorted
 from tqdm import tqdm
 
 import numpy as np
@@ -33,7 +33,7 @@ def load_images_in_shape(img_dir, **kwargs):
     """
     img_data_in_shape = []
     
-    list_of_images = Tcl().call('lsort', '-dict', os.listdir(img_dir))
+    list_of_images = natsorted(os.listdir(img_dir))
     print('Found', len(list_of_images), 'files in the directory')
     
     for im in tqdm(list_of_images):

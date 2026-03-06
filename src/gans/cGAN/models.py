@@ -23,7 +23,7 @@ from keras.layers import Input, Dense, Reshape, Flatten, Conv2D, Conv2DTranspose
 from keras.layers import LeakyReLU, Embedding, Concatenate, BatchNormalization, Dropout
 from keras.optimizers import Adam
 
-from .. import utils
+from gans import utils
 
 # building the discriminator model
 def build_discriminator(in_shape, n_class, noise_dim=50, optimizer=Adam, 
