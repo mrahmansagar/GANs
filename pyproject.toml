@@ -55,7 +55,7 @@ notebooks = [
     "pillow>=9.0",
 ]
 tensorflow = [
-    "tensorflow>=2.11.0",
+    "tensorflow>=2.17.0",
 ]
 
 [project.urls]
@@ -66,7 +66,7 @@ Repository = "https://github.com/mrahman-sagar/GANs.git"
 
 [tool.setuptools]
 package-dir = {"" = "src"}
-packages = ["gans", "gans.cGAN", "gans.cycleGAN", "gans.pix2pix"]
+packages = ["tfgans", "tfgans.cGAN", "tfgans.cycleGAN", "tfgans.pix2pix"]
 
 [tool.black]
 line-length = 100
