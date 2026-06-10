@@ -24,8 +24,6 @@ classifiers = [
     "Natural Language :: English",
     "Operating System :: OS Independent",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.8",
-    "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Topic :: Scientific/Engineering :: Artificial Intelligence",
@@ -33,10 +31,13 @@ classifiers = [
 ]
 
 dependencies = [
-    "tensorflow>=2.10.0",
-    "numpy>=1.19.0",
+    "numpy>=1.21.0,<2",
     "scikit-learn>=1.0.0",
     "scipy>=1.7.0",
+    "natsort>=8.0.0",
+    "tqdm>=4.60.0",
+    "tifffile>=2021.0.0",
+    "matplotlib>=3.5.0",
 ]
 
 [project.optional-dependencies]
@@ -53,6 +54,9 @@ notebooks = [
     "matplotlib>=3.5.0",
     "pillow>=9.0",
 ]
+tensorflow = [
+    "tensorflow>=2.11.0",
+]
 
 [project.urls]
 Homepage = "https://github.com/mrahman-sagar/GANs"
@@ -61,6 +65,7 @@ Repository = "https://github.com/mrahman-sagar/GANs.git"
 "Bug Tracker" = "https://github.com/mrahman-sagar/GANs/issues"
 
 [tool.setuptools]
+package-dir = {"" = "src"}
 packages = ["gans", "gans.cGAN", "gans.cycleGAN", "gans.pix2pix"]
 
 [tool.black]

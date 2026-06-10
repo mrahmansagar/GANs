@@ -181,3 +181,7 @@ examples/gen_plot_after_299.png
 examples/gen_plot_after_399.png
 examples/gen_plot_after_499.png   
 examples/gen_after_499.h5
+
+
+.vscode
+.python-version
