@@ -12,7 +12,7 @@ import os
 import numpy as np
 import matplotlib.pyplot as plt
 
-from gans import utils
+from tfgans import utils
 
 def generate_fake_samples(gen_model, data, patchgan_output_size):
     """

@@ -9,5 +9,5 @@ Implementation of various Generative Adversarial Networks (GANs) and related uti
 pip install tfgans
 ```
 
-Install tensorflow on your own. Tested version tensorflow 2.11 with python 3.10
+Install tensorflow [cup or gpu] on your own. Tested version tensorflow 2.17.0 with python 3.10 on Ubuntu 24.04 LTS
 

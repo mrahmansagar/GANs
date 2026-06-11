@@ -59,10 +59,10 @@ tensorflow = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/mrahman-sagar/GANs"
-Documentation = "https://github.com/mrahman-sagar/GANs#readme"
-Repository = "https://github.com/mrahman-sagar/GANs.git"
-"Bug Tracker" = "https://github.com/mrahman-sagar/GANs/issues"
+Homepage = "https://github.com/mrahmansagar/GANs"
+Documentation = "https://github.com/mrahmansagar/GANs#readme"
+Repository = "https://github.com/mrahmansagar/GANs.git"
+"Bug Tracker" = "https://github.com/mrahmansagar/GANs/issues"
 
 [tool.setuptools]
 package-dir = {"" = "src"}
